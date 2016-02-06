@@ -22,8 +22,9 @@ RTS.prototype.start = function() {
 		map.setUnitManager(unitManager);
 		unitManager.setMap(map);
 
-		var villager = unitManager.create(snap, 'villager');
-		villager.position(100, 50);
+		unitManager.create(snap, 'villager').position(100, 50);
+		unitManager.create(snap, 'villager').position(100, 100);
+		unitManager.create(snap, 'villager').position(50, 150);
 		unitManager.create(snap, 'tree').position(100, 150);
 		unitManager.create(snap, 'tree').position(600, 150);
 		unitManager.create(snap, 'tree').position(600, 200);
@@ -38,7 +39,18 @@ RTS.prototype.start = function() {
 			selected = e.unit;
 		});
 		map.on('target', function(e) {
-			if(selected) selected.walk(e.x, e.y);
+			if(selected) {
+				if(selected instanceof Array) {
+					selected.forEach(function(s) {
+						s.walk(e.x, e.y);
+					});
+				}else{
+					selected.walk(e.x, e.y);
+				}
+			}
+		});
+		map.on('selected', function(units) {
+			selected = units;
 		});
 
 		var requestAnimationFrame = getRequestAnimationFrame();

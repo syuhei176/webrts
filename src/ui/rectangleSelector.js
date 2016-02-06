@@ -14,9 +14,14 @@ module.exports = {
 		this.rect.remove();
 	},
 	move : function(dx, dy) {
+		this.width = dx;
+		this.height = dy;
 		this.rect.attr({
-			width : this.x + dx,
-			height : this.y + dy
+			width : dx,
+			height : dy
 		});
+	},
+	isContain : function(pos) {
+		return this.x < pos.getX() && this.y < pos.getY() && (pos.getX() < this.x + this.width) && (pos.getY() < this.y + this.height);
 	}
 }

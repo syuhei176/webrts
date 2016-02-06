@@ -45,6 +45,15 @@ UnitManager.prototype.create = function(snap, metaUnitId) {
 	return person;
 }
 
+UnitManager.prototype.getTrainableUnits = function() {
+	var that = this;
+	return Object.keys(this.units).map(function(k) {
+		return that.units[k];
+	}).filter(function(unit) {
+		return unit.info.type == 'trainable';
+	});
+}
+
 UnitManager.prototype.getCollUnits = function() {
 	var that = this;
 	return Object.keys(this.units).map(function(k) {

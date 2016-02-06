@@ -21,6 +21,10 @@ function Map(snap) {
 		RectangleSelector.start(x, y);
 	}, function() {
 		RectangleSelector.end();
+		var units = that.unitManager.getTrainableUnits().filter(function(unit) {
+			return RectangleSelector.isContain(unit.position())
+		});
+		that.emit('selected', units);
 	});
 	this.coll.mousedown(function(e) {
 		console.log(e.clientX);
