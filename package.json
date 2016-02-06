@@ -1,0 +1,30 @@
+{
+  "name": "rts-util",
+  "descrption": "real time storategy utility",
+  "version": "0.0.1",
+  "author": {
+    "name": "Shuhei Hiya"
+  },
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "engines": {
+    "node": ">=0.10.*"
+  },
+  "dependencies": {
+    "eve": "^0.5.0",
+    "eventemitter2": "^0.4.14",
+    "uuid": "^2.0.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "devDependencies": {
+    "browserify": "*",
+    "gulp": "*",
+    "gulp-connect": "*",
+    "gulp-mocha": "*",
+    "gulp-plumber": "^1.0.1",
+    "gulp-uglify": "*"
+  }
+}
