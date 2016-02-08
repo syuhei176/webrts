@@ -30,6 +30,7 @@ function BasePersonUnit(graphic, info, map) {
 	this.nextDestination = null;
 	this.queue = [];
 	this.count = 0;
+	this.count2 = 0;
 	//init
 	this.graphic.click(function(e) {
 		that.emit('click', e);
@@ -37,6 +38,10 @@ function BasePersonUnit(graphic, info, map) {
 }
 
 util.inherits(BasePersonUnit, BaseUnit);
+
+BasePersonUnit.prototype.getId = function() {
+	return this.id;
+}
 
 BasePersonUnit.prototype.draw = function(status) {
 	//表示
@@ -46,8 +51,14 @@ BasePersonUnit.prototype.main = function() {
 	if(this.status.status == PersonUnitStatus.STATUS_MOVING_TO_POS) {
 		if(this.nextDestination) {
 			this.pos = this.pos.add(this.vec);
+			if(this.map.hit(this)) {
+				this.pos = this.pos.sub(this.vec);
+				this.count2--;
+				if(this.count2 <= 0) this.count = 0;
+			}else{
+				this.count--;
+			}
 			this.graphic.setPos(this.pos.getX(), this.pos.getY());
-			this.count--;
 			if(this.count <= 0) this.nextDestination = null;
 		}else{
 			this.count = 0;
@@ -56,10 +67,29 @@ BasePersonUnit.prototype.main = function() {
 				var vec = this.nextDestination.sub(this.pos);
 				this.graphic.rotate( Math.atan(vec.getY() / vec.getX()) / Math.PI * 180 + 90 );
 				this.vec = vec.times(1/50);
-				console.log(this.vec);
 				this.count = 50;
+				this.count2 = 150;
 			}
 		}
+	}
+}
+
+BasePersonUnit.prototype.collBound = function() {
+	var offset = 5;
+	var info = this.info;
+	if(info.type == 'trainable') offset = 15;
+	if(info.size.length == 2) {
+		var w = info.size[0] * 50;
+		var h = info.size[1] * 50;
+	}else{
+		var w = info.size * 50;
+		var h = info.size * 50;
+	}
+	return {
+		x : this.pos.getX()+offset,
+		y : this.pos.getY()+offset,
+		w : w - offset*2,
+		h : h - offset*2
 	}
 }
 
@@ -84,12 +114,15 @@ BasePersonUnit.prototype.move = function(d) {
 BasePersonUnit.prototype.walk = function(x, y) {
 	var that = this;
 
+	//clear
+	this.count--;
+	this.queue = [];
+
 	this.status.status = PersonUnitStatus.STATUS_MOVING_TO_POS;
 	this.status.dest = new Math2D.Point2D(x, y);
 
-	this.map.getCollGraph();
-
-	var graph = new astar.Graph(this.map.getCollGraph());
+	var collGraph = this.map.getCollGraph();
+	var graph = new astar.Graph(collGraph);
 	var startPos = this.positionTile();
 	var endPos = new Math2D.Point2D(Math.floor(x / 50), Math.floor(y / 50));
 	logger('walkFrom', startPos.getX(), startPos.getY());
@@ -98,7 +131,6 @@ BasePersonUnit.prototype.walk = function(x, y) {
     var end = graph.grid[ endPos.getX() ][ endPos.getY() ];
     var result = astar.astar.search(graph, start, end);
     result.map(function(gridNode) {
-    	console.log(gridNode.x, gridNode.y);
 		that.queue.push(new Math2D.Point2D(gridNode.x*50, gridNode.y*50));
     });
 }

@@ -7,9 +7,9 @@ function BaseUnit(graphic, info) {
 	that.graphic = graphic;
 	this.info = info;
 	if(info.size instanceof Array) {
-		that.graphic.setSize(info.size[0] * 40, info.size[1] * 40);
+		that.graphic.setSize(info.size[0] * 50, info.size[1] * 50);
 	}else{
-		that.graphic.setSize(info.size * 40, info.size * 40);
+		that.graphic.setSize(info.size * 50, info.size * 50);
 	}
 }
 

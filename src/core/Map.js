@@ -51,6 +51,18 @@ Map.prototype.setUnitManager = function(unitManager) {
 	this.unitManager = unitManager;
 }
 
+Map.prototype.hit = function(targetUnit) {
+	return this.unitManager.getUnits().filter(function(unit) {
+		return unit.getId() != targetUnit.getId();
+	}).map(function(u) {
+		return u.collBound();
+	}).filter(function(bound) {
+		var targetBound = targetUnit.collBound();
+		return (bound.x < targetBound.x + targetBound.w &&  targetBound.x < bound.x + bound.w &&
+			bound.y < targetBound.y + targetBound.h &&  targetBound.y < bound.y + bound.h);
+	}).length > 0;
+}
+
 Map.prototype.getCollGraph = function() {
 	var that = this;
 	var graph = [];
@@ -61,11 +73,21 @@ Map.prototype.getCollGraph = function() {
 		}
 		graph.push(wGraph);
 	}
-	console.log(graph);
 	this.unitManager.getCollUnits().map(function(u) {
-		return u.positionTile();
+		if(u.info.size.length == 2) {
+			var w = u.info.size[0];
+			var h = u.info.size[1];
+		}else{
+			var w = u.info.size;
+			var h = u.info.size;
+		}
+		return {x:u.positionTile().getX(), y:u.positionTile().getY(), w:w, h:h};　
 	}).forEach(function(p) {
-		graph[p.getX()][p.getY()] = 0;
+		for(var i = p.x;i < p.x + p.w;i++) {
+			for(var j = p.y;j < p.y + p.h;j++) {
+				graph[i][j] = 0;
+			}
+		}
 	});
 	return graph;
 }

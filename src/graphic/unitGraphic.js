@@ -36,6 +36,8 @@ UnitGraphic.prototype.rotate = function(r) {
 }
 
 UnitGraphic.prototype.setSize = function(sizeX, sizeY) {
+	this._width = sizeX;
+	this._height = sizeY;
 	this._scaleX = sizeX / this.options.width;
 	this._scaleY = sizeY / this.options.height;
 	this.applyDisplay();
@@ -43,9 +45,9 @@ UnitGraphic.prototype.setSize = function(sizeX, sizeY) {
 
 UnitGraphic.prototype.applyDisplay = function() {
 	var myMatrix = new Snap.Matrix();
-	myMatrix.translate(this.bound.x, this.bound.y);
-	myMatrix.scale(this._scaleX, this._scaleY);
+	myMatrix.translate(this.bound.x+(this._width/2), this.bound.y+(this._height/2));
 	myMatrix.rotate(this._rotate);
+	myMatrix.scale(this._scaleX, this._scaleY);
 	myMatrix.translate(-(this.options.width/2), -(this.options.height/2));
 	this.group.transform(myMatrix);
 }

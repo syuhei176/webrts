@@ -27,12 +27,12 @@ module.exports = [{
 	name : '町の中心',
 	graphic : {
 		path : 'building/town.svg',
-		width : 80,
-		height : 80,
+		width : 320,
+		height : 320,
 	},
 	unitinfo : {
 		type : 'building',
-		size : [5, 5]
+		size : [3, 3]
 	}
 },{
 	id : 'tree',
@@ -44,7 +44,7 @@ module.exports = [{
 	},
 	unitinfo : {
 		type : 'nature',
-		size : 2
+		size : 1
 	}
 },{
 	id : 'fruit',
