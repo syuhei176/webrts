@@ -1,5 +1,4 @@
 var util = require('util');
-var uuid = require('uuid');
 var Math2D = require('./math2d');
 var BaseUnit = require('./BaseUnit');
 var logger = require('../util/log').logger('BasePersonUnit');
@@ -9,52 +8,51 @@ function PersonUnitStatus() {
 	return {
 		status : PersonUnitStatus.STATUS_WAIT,
 		dest : null,
-		target : null
+		target : null,
+		gathering : null,
+		gathering_amount : 0
 	}
 }
 PersonUnitStatus.STATUS_WAIT = 1;
 PersonUnitStatus.STATUS_MOVING_TO_POS = 2;
 PersonUnitStatus.STATUS_MOVING_TO_TARGET = 3;
-PersonUnitStatus.STATUS_ATTACKING = 4;
+PersonUnitStatus.STATUS_GATHERING = 4;
+PersonUnitStatus.STATUS_ATTACKING = 5;
 
-function BasePersonUnit(graphic, info, map) {
+function BasePersonUnit(graphic, info, map, player) {
 	var that = this;
-	BaseUnit.call(this, graphic, info);
-	this.id = uuid();
-	this.map = map;
+	BaseUnit.call(this, graphic, info, map, player);
 	this.status = new PersonUnitStatus();
 	this.attack = 5;
 	this.range = 3;
 	this.speed = 4;
-	this.pos = new Math2D.Point2D(0, 0);
 	this.nextDestination = null;
 	this.queue = [];
 	this.count = 0;
 	this.count2 = 0;
-	//init
-	this.graphic.click(function(e) {
-		that.emit('click', e);
-	});
 }
 
 util.inherits(BasePersonUnit, BaseUnit);
-
-BasePersonUnit.prototype.getId = function() {
-	return this.id;
-}
 
 BasePersonUnit.prototype.draw = function(status) {
 	//表示
 }
 
 BasePersonUnit.prototype.main = function() {
-	if(this.status.status == PersonUnitStatus.STATUS_MOVING_TO_POS) {
+	if(this.status.status == PersonUnitStatus.STATUS_MOVING_TO_POS ||
+		this.status.status == PersonUnitStatus.STATUS_MOVING_TO_TARGET) {
 		if(this.nextDestination) {
 			this.pos = this.pos.add(this.vec);
 			if(this.map.hit(this)) {
 				this.pos = this.pos.sub(this.vec);
 				this.count2--;
-				if(this.count2 <= 0) this.count = 0;
+				if(this.count2 <= 0) {
+					if(this.status.status == PersonUnitStatus.STATUS_MOVING_TO_POS) {
+						this.walk(this.status.dest);
+					}else{
+						this.target(this.status.target);
+					}
+				}
 			}else{
 				this.count--;
 			}
@@ -68,50 +66,62 @@ BasePersonUnit.prototype.main = function() {
 				this.graphic.rotate( Math.atan(vec.getY() / vec.getX()) / Math.PI * 180 + 90 );
 				this.vec = vec.times(1/50);
 				this.count = 50;
-				this.count2 = 150;
+				this.count2 = 200;
 			}
+		}
+	}
+	if(this.status.status == PersonUnitStatus.STATUS_MOVING_TO_TARGET) {
+		var dis = Math2D.Point2D.distance( this.position(), this.status.target.position() );
+		if(dis < 80) {
+			if(this.status.target.info.type == "building") {
+				console.log('Go To Gathering');
+				this.player.addResource('tree', this.status.gathering_amount);
+				this.status.gathering_amount = 0;
+				if(this.status.gathering) {
+					this.target(this.status.gathering);
+				}else{
+					var nature = this.map.unitManager.getNearNature();
+					this.status.gathering = nature[0];
+					this.target(this.status.gathering);
+				}
+			}else if(this.status.target.info.type == "nature") {
+				console.log('Gathering');
+				this.count = 200;
+				this.status.status = PersonUnitStatus.STATUS_GATHERING;
+				this.status.gathering = this.status.target;
+			}
+		}
+	}else if(this.status.status == PersonUnitStatus.STATUS_GATHERING){
+		this.count--;
+		if(this.count <= 0) {
+			this.status.gathering_amount += this.status.gathering.decrease(10);
+			if(this.status.gathering_amount == 0) {
+				this.status.gathering = null;
+			}
+			console.log('building');
+			var buildings = this.map.unitManager.getNearBuilding();
+			this.target( buildings[0] );
 		}
 	}
 }
 
-BasePersonUnit.prototype.collBound = function() {
-	var offset = 5;
-	var info = this.info;
-	if(info.type == 'trainable') offset = 15;
-	if(info.size.length == 2) {
-		var w = info.size[0] * 50;
-		var h = info.size[1] * 50;
-	}else{
-		var w = info.size * 50;
-		var h = info.size * 50;
-	}
-	return {
-		x : this.pos.getX()+offset,
-		y : this.pos.getY()+offset,
-		w : w - offset*2,
-		h : h - offset*2
-	}
-}
 
-BasePersonUnit.prototype.position = function(x, y) {
-	if(x === undefined && y == undefined) return this.pos;
-	this.pos.setLocation(x, y);
-	this.graphic.setPos(x, y);
-}
-
-BasePersonUnit.prototype.positionTile = function(x, y) {
-	if(x === undefined && y == undefined) return new Math2D.Point2D( Math.floor(this.pos.getX() / 50), Math.floor(this.pos.getY() / 50));
-	x *= 50;
-	y *= 50;
-	this.pos.setLocation(x, y);
-	this.graphic.setPos(x, y);
-}
 
 BasePersonUnit.prototype.move = function(d) {
 	this.queue.push(d);
 }
 
+BasePersonUnit.prototype.target = function(unit) {
+	this.walk(unit.position());
+	this.status.status = PersonUnitStatus.STATUS_MOVING_TO_TARGET;
+	this.status.target = unit;
+}
+
 BasePersonUnit.prototype.walk = function(x, y) {
+	if(x instanceof Math2D.Point2D) {
+		y = x.getY();
+		x = x.getX();
+	}
 	var that = this;
 
 	//clear
@@ -121,15 +131,19 @@ BasePersonUnit.prototype.walk = function(x, y) {
 	this.status.status = PersonUnitStatus.STATUS_MOVING_TO_POS;
 	this.status.dest = new Math2D.Point2D(x, y);
 
-	var collGraph = this.map.getCollGraph();
-	var graph = new astar.Graph(collGraph);
 	var startPos = this.positionTile();
 	var endPos = new Math2D.Point2D(Math.floor(x / 50), Math.floor(y / 50));
+
+	var collGraph = this.map.getCollGraph({
+		except : [startPos, endPos]
+	});
+	var graph = new astar.Graph(collGraph);
 	logger('walkFrom', startPos.getX(), startPos.getY());
 	logger('walkTo', endPos.getX(), endPos.getY());
     var start = graph.grid[startPos.getX()][startPos.getY()];
     var end = graph.grid[ endPos.getX() ][ endPos.getY() ];
     var result = astar.astar.search(graph, start, end);
+
     result.map(function(gridNode) {
 		that.queue.push(new Math2D.Point2D(gridNode.x*50, gridNode.y*50));
     });

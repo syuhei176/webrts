@@ -4,6 +4,7 @@ var unitInfo = require('./unit');
 var ControlPanel = require('./ui/controlPanel');
 var unitInfo = require('./unit');
 var Map = require('./core/Map');
+var Player = require('./core/player');
 
 function RTS() {
 
@@ -11,7 +12,7 @@ function RTS() {
 
 RTS.prototype.start = function() {
 	window.addEventListener('load', function() {
-		var controlPanel = ControlPanel();
+		var controlPanel = new ControlPanel();
 		var snap = Snap('#svg');
 		var unitManager = new UnitManager();
 		unitManager.load(unitInfo);
@@ -21,25 +22,41 @@ RTS.prototype.start = function() {
 
 		map.setUnitManager(unitManager);
 		unitManager.setMap(map);
-
-		unitManager.create(snap, 'town').position(250, 150);
-		unitManager.create(snap, 'villager').position(100, 50);
-		unitManager.create(snap, 'villager').position(100, 100);
-		unitManager.create(snap, 'villager').position(50, 150);
-		unitManager.create(snap, 'villager').position(200, 200);
-		unitManager.create(snap, 'villager').position(200, 250);
-		unitManager.create(snap, 'tree').position(100, 150);
-		unitManager.create(snap, 'tree').position(600, 150);
-		unitManager.create(snap, 'tree').position(600, 200);
-		unitManager.create(snap, 'tree').position(600, 250);
-		unitManager.create(snap, 'tree').position(450, 200);
-		unitManager.create(snap, 'tree').position(400, 300);
-		unitManager.create(snap, 'tree').position(400, 250);
-		unitManager.create(snap, 'tree').position(150, 50);
+		var player = new Player();
+		player.on('update', function() {
+			var resource_tree = document.getElementById('resource-tree');
+			resource_tree.textContent = player.resource('tree');
+		});
+		unitManager.create(snap, 'town', player).position(250, 150);
+		unitManager.create(snap, 'villager', player).position(100, 50);
+		unitManager.create(snap, 'villager', player).position(100, 100);
+		unitManager.create(snap, 'villager', player).position(50, 150);
+		unitManager.create(snap, 'villager', player).position(200, 200);
+		unitManager.create(snap, 'villager', player).position(200, 250);
+		unitManager.create(snap, 'tree', player).position(100, 150);
+		unitManager.create(snap, 'tree', player).position(600, 150);
+		unitManager.create(snap, 'tree', player).position(600, 200);
+		unitManager.create(snap, 'tree', player).position(600, 250);
+		unitManager.create(snap, 'tree', player).position(450, 200);
+		unitManager.create(snap, 'tree', player).position(400, 300);
+		unitManager.create(snap, 'tree', player).position(400, 250);
+		unitManager.create(snap, 'tree', player).position(150, 50);
 
 		var selected = null;
+		unitManager.on('target', function(e) {
+			if(selected) {
+				if(selected instanceof Array) {
+					selected.forEach(function(s) {
+						s.target(e.unit);
+					});
+				}else{
+					selected.target(e.unit);
+				}
+			}			
+		});
 		unitManager.on('click', function(e) {
 			selected = e.unit;
+			controlPanel.setTarget(selected);
 		});
 		map.on('target', function(e) {
 			if(selected) {

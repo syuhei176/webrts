@@ -63,7 +63,8 @@ Map.prototype.hit = function(targetUnit) {
 	}).length > 0;
 }
 
-Map.prototype.getCollGraph = function() {
+Map.prototype.getCollGraph = function(_options) {
+	var options = _options || {};
 	var that = this;
 	var graph = [];
 	for(var i=0;i < this.width;i++) {
@@ -89,6 +90,11 @@ Map.prototype.getCollGraph = function() {
 			}
 		}
 	});
+	if(options.except) {
+		options.except.forEach(function(e) {
+			graph[e.getX()][e.getY()] = 1;
+		});
+	}
 	return graph;
 }
 

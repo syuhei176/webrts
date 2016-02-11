@@ -2,6 +2,7 @@ var EventEmitter = require('eventemitter2').EventEmitter2;
 var util = require('util');
 var UnitGraphic = require('../graphic/unitGraphic');
 var BasePersonUnit = require('./BasePersonUnit');
+var BaseNatureUnit = require('./BaseNatureUnit');
 
 function UnitManager() {
 	EventEmitter.call(this);
@@ -25,11 +26,11 @@ UnitManager.prototype.load = function(units) {
 UnitManager.prototype.main = function() {
 	var that = this;
 	Object.keys(this.units).map(function(k) {
-		that.units[k].main();
+		if(that.units[k]) that.units[k].main();
 	});
 }
 
-UnitManager.prototype.create = function(snap, metaUnitId) {
+UnitManager.prototype.create = function(snap, metaUnitId, player) {
 	var that = this;
 	var metaUnit = this.metaUnits[metaUnitId];
 	var ug = new UnitGraphic(snap, {
@@ -37,12 +38,27 @@ UnitManager.prototype.create = function(snap, metaUnitId) {
 		width : metaUnit.graphic.width,
 		height : metaUnit.graphic.height,
 	});
-	var person = new BasePersonUnit(ug, metaUnit.unitinfo, this.map);
+	if(metaUnit.unitinfo.type == 'nature') {
+		var person = new BaseNatureUnit(ug, metaUnit.unitinfo, this.map, player);
+	}else{
+		var person = new BasePersonUnit(ug, metaUnit.unitinfo, this.map, player);
+	}
 	person.on('click', function(e) {
-		that.emit('click', {unit : person, event : e});
+		if(e.button == 2) {
+			that.emit('target', {unit : person, event : e});
+		}else{
+			that.emit('click', {unit : person, event : e});
+		}
 	});
 	this.units[person.id] = person;
 	return person;
+}
+
+UnitManager.prototype.remove = function(id) {
+	if(this.units[id]) {
+		this.units[id].remove();
+		delete this.units[id];
+	}
 }
 
 UnitManager.prototype.getUnits = function() {
@@ -65,9 +81,28 @@ UnitManager.prototype.getCollUnits = function() {
 	var that = this;
 	return Object.keys(this.units).map(function(k) {
 		return that.units[k];
-	}).filter(function(unit) {
+	})/*.filter(function(unit) {
 		return unit.info.type == 'building' || unit.info.type == 'nature';
+	});*/
+}
+
+UnitManager.prototype.getNearNature = function() {
+	var that = this;
+	return Object.keys(this.units).map(function(k) {
+		return that.units[k];
+	}).filter(function(unit) {
+		return unit.info.type == 'nature';
 	});
 }
+
+UnitManager.prototype.getNearBuilding = function() {
+	var that = this;
+	return Object.keys(this.units).map(function(k) {
+		return that.units[k];
+	}).filter(function(unit) {
+		return unit.info.type == 'building';
+	});
+}
+
 
 module.exports = UnitManager;

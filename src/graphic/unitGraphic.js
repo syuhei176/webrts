@@ -13,8 +13,12 @@ function UnitGraphic(s, options) {
 	});
 }
 
+UnitGraphic.prototype.remove = function() {
+	this.group.remove();
+}
+
 UnitGraphic.prototype.click = function(cb) {
-	this.group.click(cb);
+	this.group.mouseup(cb);
 }
 
 UnitGraphic.prototype.getPos = function() {
