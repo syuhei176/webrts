@@ -33,4 +33,9 @@ BaseNatureUnit.prototype.decrease = function(amount) {
 BaseNatureUnit.prototype.main = function() {
 }
 
+BaseNatureUnit.prototype.toString = function() {
+	return this.amount;
+}
+
+
 module.exports = BaseNatureUnit;

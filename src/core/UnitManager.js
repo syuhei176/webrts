@@ -1,7 +1,7 @@
 var EventEmitter = require('eventemitter2').EventEmitter2;
 var util = require('util');
 var UnitGraphic = require('../graphic/unitGraphic');
-var BasePersonUnit = require('./BasePersonUnit');
+var BaseMobileUnit = require('./BaseMobileUnit');
 var BaseNatureUnit = require('./BaseNatureUnit');
 
 function UnitManager() {
@@ -41,12 +41,15 @@ UnitManager.prototype.create = function(snap, metaUnitId, player) {
 	if(metaUnit.unitinfo.type == 'nature') {
 		var person = new BaseNatureUnit(ug, metaUnit.unitinfo, this.map, player);
 	}else{
-		var person = new BasePersonUnit(ug, metaUnit.unitinfo, this.map, player);
+		var person = new BaseMobileUnit(ug, metaUnit.unitinfo, this.map, player);
 	}
 	person.on('click', function(e) {
 		if(e.button == 2) {
 			that.emit('target', {unit : person, event : e});
 		}else{
+			//TODO:
+			that.selected = person;
+			//
 			that.emit('click', {unit : person, event : e});
 		}
 	});

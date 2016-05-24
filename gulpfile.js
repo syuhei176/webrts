@@ -15,7 +15,7 @@ gulp.task('serve', function() {
 });
 
 gulp.task("move-html", function(){
-  return gulp.src(["./src/*.html"])
+  return gulp.src(["./src/html/**/*.html"])
     .pipe(plumber())
     .pipe(gulp.dest("dist"));
 });

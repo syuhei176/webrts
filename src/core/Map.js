@@ -1,14 +1,15 @@
 var EventEmitter = require('eventemitter2').EventEmitter2;
 var util = require('util');
 var RectangleSelector = require('../ui/rectangleSelector');
+var Math2D = require('./math2d');
 
 function Map(snap) {
 	var that = this;
 	EventEmitter.call(this);
 	this.width = 80;
 	this.height = 80;
-	var width = 1000;
-	var height = 500;
+	var width = 2000;
+	var height = 2000;
 	RectangleSelector.snap = snap;
 	this.coll = snap.rect(0, 0, width, height);
 	this.coll.attr({
@@ -16,9 +17,9 @@ function Map(snap) {
 	});
 	this.coll.drag(function(dx, dy) {
 		RectangleSelector.move(dx, dy);
-	}, function(x, y) {
-		console.log('start', x, y);
-		RectangleSelector.start(x, y);
+	}, function(x, y, e) {
+		console.log('start', e.pageX, e.pageY);
+		RectangleSelector.start(e.pageX, e.pageY);
 	}, function() {
 		RectangleSelector.end();
 		var units = that.unitManager.getTrainableUnits().filter(function(unit) {
@@ -27,16 +28,15 @@ function Map(snap) {
 		that.emit('selected', units);
 	});
 	this.coll.mousedown(function(e) {
-		console.log(e.clientX);
 		if(e.button == 0) {
 			that.emit('click', {
-				x : e.clientX,
-				y : e.clientY
+				x : e.pageX,
+				y : e.pageY
 			});
 		}else if(e.button == 2) {
+			console.log(e);
 			that.emit('target', {
-				x : e.clientX,
-				y : e.clientY
+				pos: new Math2D.Point2D(e.pageX, e.pageY)
 			});
 		}
 	});
