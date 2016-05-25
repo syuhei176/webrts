@@ -46,8 +46,8 @@ BaseMobileUnit.prototype.draw = function(status) {
 	//表示
 }
 
-BaseMobileUnit.prototype.toString = function() {
-	return JSON.stringify(this.context.status);
+BaseMobileUnit.prototype.getInfo = function() {
+	return "<div>"+this.context.gathering_amount+"</div>"
 }
 
 
@@ -152,7 +152,7 @@ BaseMobileUnit.prototype.execute_gathering = function(event) {
 	if(this.count <= 0) {
 		this.count = 20;
 		this.context.gathering_amount += this.context.target.decrease(1);
-		if(this.context.gathering_amount == 10) {
+		if(this.context.gathering_amount >= 10) {
 			var buildings = this.map.unitManager.getNearBuilding();
 			this.return_to_target( buildings[0] );
 		}
@@ -209,13 +209,19 @@ BaseMobileUnit.prototype.move_to_pos = function(pos) {
 }
 
 BaseMobileUnit.prototype.move_to_target = function(unit) {
-	this.make_route( unit.position() );
 	if(unit.info.type == "nature") {
+		this.make_route( unit.position() );
 		this.context.status = MobileUnitContext.STATUS.MOVING_TO_RESOURCE;
+		this.context.target = unit;
+		return true;
 	}else if(unit.info.type == "building") {
+		this.make_route( unit.position() );
 		this.context.status = MobileUnitContext.STATUS.MOVING_TO_BUILDING;
+		this.context.target = unit;
+		return true;
+	}else{
+		return false;
 	}
-	this.context.target = unit;
 }
 
 BaseMobileUnit.prototype.return_to_target = function(unit) {

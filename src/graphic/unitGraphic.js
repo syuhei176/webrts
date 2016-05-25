@@ -1,15 +1,17 @@
 var Snap = require('../../thirdparty/snap.svg');
 
-function UnitGraphic(s, options) {
+function UnitGraphic(snap, group, options, onLoad) {
 	var that = this;
-	this.group = s.g();
+	this.group = snap.g();
 	this.bound = {x:0,y:0};
 	this._rotate = 0;
 	this.options = options;
+	group.append(this.group);
 	Snap.load(options.path, function (f) {
 		console.log(options.path + ' loaded svg.', f);
 	    g = f.select("g");
 	    that.group.append(g);
+	    if(onLoad) onLoad();
 	});
 }
 

@@ -33,8 +33,8 @@ BaseNatureUnit.prototype.decrease = function(amount) {
 BaseNatureUnit.prototype.main = function() {
 }
 
-BaseNatureUnit.prototype.toString = function() {
-	return this.amount;
+BaseNatureUnit.prototype.getInfo = function() {
+	return "<div>" + this.amount + "</div>"
 }
 
 

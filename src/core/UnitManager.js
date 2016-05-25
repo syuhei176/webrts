@@ -3,11 +3,16 @@ var util = require('util');
 var UnitGraphic = require('../graphic/unitGraphic');
 var BaseMobileUnit = require('./BaseMobileUnit');
 var BaseNatureUnit = require('./BaseNatureUnit');
+var BaseBuildingUnit = require('./BaseBuildingUnit');
 
-function UnitManager() {
+function UnitManager(snap) {
 	EventEmitter.call(this);
 	this.metaUnits = {};
 	this.units = {};
+	this.snap = snap;
+	this.group = snap.g();
+	this.selected = null;
+	this.cursors = [];
 }
 
 util.inherits(UnitManager, EventEmitter);
@@ -30,28 +35,28 @@ UnitManager.prototype.main = function() {
 	});
 }
 
-UnitManager.prototype.create = function(snap, metaUnitId, player) {
+UnitManager.prototype.create = function(metaUnitId, player) {
 	var that = this;
 	var metaUnit = this.metaUnits[metaUnitId];
-	var ug = new UnitGraphic(snap, {
+	var ug = new UnitGraphic(this.snap, this.group, {
 		path : 'images/' + metaUnit.graphic.path,
 		width : metaUnit.graphic.width,
 		height : metaUnit.graphic.height,
 	});
 	if(metaUnit.unitinfo.type == 'nature') {
 		var person = new BaseNatureUnit(ug, metaUnit.unitinfo, this.map, player);
+	//}else if(metaUnit.unitinfo.type == 'building') {
+	//	var person = new BaseBuildingUnit(ug, metaUnit.unitinfo, this.map, player);
 	}else{
 		var person = new BaseMobileUnit(ug, metaUnit.unitinfo, this.map, player);
 	}
 	person.on('click', function(e) {
-		if(e.button == 2) {
-			that.emit('target', {unit : person, event : e});
-		}else{
-			//TODO:
-			that.selected = person;
-			//
+		that.clickHandler(e, function() {
+			that.select([person]);
 			that.emit('click', {unit : person, event : e});
-		}
+		}, function() {
+			that.emit('target', {unit : person, event : e});
+		});
 	});
 	this.units[person.id] = person;
 	return person;
@@ -105,6 +110,31 @@ UnitManager.prototype.getNearBuilding = function() {
 	}).filter(function(unit) {
 		return unit.info.type == 'building';
 	});
+}
+
+UnitManager.prototype.select = function(target) {
+	var that = this;
+	this.selected = target;
+	this.cursors.forEach(function(c) {
+		c.remove();
+	});
+	if(this.selected) {
+		this.cursors = this.selected.map(function(u) {
+			var pos = u.position();
+			var c = that.snap.circle(40, 40, 50);
+			c.attr({
+				fill: "none",
+				stroke: "#1010f0",
+				strokeWidth: 3
+			});
+			u.graphic.group.append(c);
+			return c;
+		});
+	}
+}
+
+UnitManager.prototype.setClickHandler = function(clickHandler) {
+	this.clickHandler = clickHandler;
 }
 
 

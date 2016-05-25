@@ -1,7 +1,12 @@
+var Snap = require('../../thirdparty/snap.svg');
 var EventEmitter = require('eventemitter2').EventEmitter2;
 var util = require('util');
 var RectangleSelector = require('../ui/rectangleSelector');
 var Math2D = require('./math2d');
+
+//click:タッチ
+//click:選択状態でのタッチ
+//target:右クリック
 
 function Map(snap) {
 	var that = this;
@@ -10,8 +15,12 @@ function Map(snap) {
 	this.height = 80;
 	var width = 2000;
 	var height = 2000;
+	this.pos = new Math2D.Point2D(0, 0);
 	RectangleSelector.snap = snap;
+	this.snap = snap;
+	this.group = this.snap.g();
 	this.coll = snap.rect(0, 0, width, height);
+	this.group.append(this.coll);
 	this.coll.attr({
 		fill : "#7f7"
 	});
@@ -23,22 +32,27 @@ function Map(snap) {
 	}, function() {
 		RectangleSelector.end();
 		var units = that.unitManager.getTrainableUnits().filter(function(unit) {
-			return RectangleSelector.isContain(unit.position())
+			return RectangleSelector.isContain(that.global2screen(unit.position()));
 		});
+		that.unitManager.select(units);
 		that.emit('selected', units);
 	});
+	this.clickHandler = function(e) {
+
+	}
 	this.coll.mousedown(function(e) {
-		if(e.button == 0) {
+		var pos = that.screen2global(e.pageX, e.pageY);
+		that.clickHandler(e, function() {
 			that.emit('click', {
-				x : e.pageX,
-				y : e.pageY
+				pos: pos
 			});
-		}else if(e.button == 2) {
-			console.log(e);
+			that.unitManager.select([]);
+		}, function() {
 			that.emit('target', {
-				pos: new Math2D.Point2D(e.pageX, e.pageY)
+				pos: pos
 			});
-		}
+			that.unitManager.select([]);
+		});
 	});
     window.addEventListener("contextmenu", function(e){
         e.preventDefault();
@@ -48,7 +62,38 @@ function Map(snap) {
 util.inherits(Map, EventEmitter);
 
 Map.prototype.setUnitManager = function(unitManager) {
+	var that = this;
 	this.unitManager = unitManager;
+	this.unitManager.setMap(this);
+	this.group.append(this.unitManager.group);
+	this.unitManager.on('click', function(e) {
+		that.emit('selected', [e.unit]);
+	});
+
+}
+
+Map.prototype.setClickHandler = function(clickHandler) {
+	this.clickHandler = clickHandler;
+}
+
+
+Map.prototype.screen2global = function(x, y) {
+	return (new Math2D.Point2D(x, y)).sub(this.pos)
+}
+Map.prototype.global2screen = function(pos) {
+	return pos.add(this.pos)
+}
+
+Map.prototype.move = function(x, y) {
+	this.pos = this.pos.add(new Math2D.Point2D(x, y));
+	this.applyDisplay();
+	console.log(this.pos);
+}
+
+Map.prototype.applyDisplay = function() {
+	var myMatrix = new Snap.Matrix();
+	myMatrix.translate(this.pos.x, this.pos.y);
+	this.group.transform(myMatrix);
 }
 
 Map.prototype.hit = function(targetUnit) {
