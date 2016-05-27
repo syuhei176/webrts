@@ -22,6 +22,10 @@ function Player(_options) {
 
 util.inherits(Player, EventEmitter);
 
+Player.prototype.type = function() {
+	return this._type;
+}
+
 Player.prototype.resource = function(type) {
 	return this._resources[type];
 }

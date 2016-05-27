@@ -1,5 +1,6 @@
 var EventEmitter = require('eventemitter2').EventEmitter2;
 var util = require('util');
+var Math2D = require('./math2d');
 var UnitGraphic = require('../graphic/unitGraphic');
 var BaseMobileUnit = require('./BaseMobileUnit');
 var BaseNatureUnit = require('./BaseNatureUnit');
@@ -45,8 +46,8 @@ UnitManager.prototype.create = function(metaUnitId, player) {
 	});
 	if(metaUnit.unitinfo.type == 'nature') {
 		var person = new BaseNatureUnit(ug, metaUnit.unitinfo, this.map, player);
-	//}else if(metaUnit.unitinfo.type == 'building') {
-	//	var person = new BaseBuildingUnit(ug, metaUnit.unitinfo, this.map, player);
+	}else if(metaUnit.unitinfo.type == 'building') {
+		var person = new BaseBuildingUnit(ug, metaUnit.unitinfo, this.map, player);
 	}else{
 		var person = new BaseMobileUnit(ug, metaUnit.unitinfo, this.map, player);
 	}
@@ -109,6 +110,18 @@ UnitManager.prototype.getNearBuilding = function() {
 		return that.units[k];
 	}).filter(function(unit) {
 		return unit.info.type == 'building';
+	});
+}
+
+UnitManager.prototype.getNearTrainableUnits = function(selfUnit, player) {
+	var that = this;
+	return Object.keys(this.units).map(function(k) {
+		return that.units[k];
+	}).filter(function(unit) {
+		return unit.info.type == 'trainable' && (unit.player.type() != player.type());
+	}).filter(function(unit) {
+		var dis = Math2D.Point2D.distance( selfUnit.position(), unit.position() );
+		return (dis < 100*100);
 	});
 }
 

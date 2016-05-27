@@ -5,6 +5,7 @@ function Menu(baseDom) {
 	baseDom.appendChild(wrapper);
 
 	this.treeDom = document.createElement('div');
+	this.treeDom.classList.add('menu-item');
 	wrapper.appendChild(this.treeDom);
 
 }

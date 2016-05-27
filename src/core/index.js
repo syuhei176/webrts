@@ -41,6 +41,7 @@ Game.prototype.start = function(requestAnimationFrame) {
 	var player_gaia = new Player({type: Player.TYPE_GAIA});
 
 
+	menu.update('tree', 0);
 	player1.on('update', function() {
 		menu.update('tree', player1.resource('tree'));
 	});
@@ -49,7 +50,8 @@ Game.prototype.start = function(requestAnimationFrame) {
 	unitManager.create('villager', player1).position(100, 100);
 	unitManager.create('villager', player1).position(50, 150);
 	unitManager.create('villager', player1).position(200, 200);
-	unitManager.create('villager', player2).position(200, 250);
+	unitManager.create('villager', player2).position(200, 300);
+	unitManager.create('villager', player2).position(200, 350);
 	unitManager.create('tree', player_gaia).position(100, 150);
 	unitManager.create('tree', player_gaia).position(600, 150);
 	unitManager.create('tree', player_gaia).position(600, 200);
@@ -61,23 +63,36 @@ Game.prototype.start = function(requestAnimationFrame) {
 
 	var selected = null;
 	unitManager.on('target', function(e) {
+		console.log(e);
 		if(selected) {
 			if(selected instanceof Array) {
 				selected.forEach(function(s) {
-					s.move_to_target(e.unit);
+					select_target(s, e.unit);
 				});
 			}else{
-				selected.move_to_target(e.unit);
+				select_target(selected, e.unit);
 			}
-		}			
+		}
+		function select_target(selected, target) {
+			if(target.player && target.player.type() == Player.TYPE_ENEMY) {
+				selected.move_to_enemy(target);
+			}else{
+				selected.move_to_target(target);
+			}
+		}
 	});
 	map.on('target', function(e) {
 		if(selected) {
 			if(selected instanceof Array) {
 				selected.forEach(function(s) {
-					s.move_to_pos(e.pos);
+					move_to_pos(s, e.pos);
 				});
 			}else{
+				move_to_pos(selected, e.pos);
+			}
+		}
+		function move_to_pos(selected, pos) {
+			if(selected.player && selected.player.type() == Player.TYPE_HUMAN) {
 				selected.move_to_pos(e.pos);
 			}
 		}

@@ -6,7 +6,7 @@ var astar = require('../algorithm/astar');
 
 function MobileUnitContext() {
 	return {
-		status : MobileUnitContext.STATUS_WAIT,
+		status : MobileUnitContext.STATUS.WAITING,
 		dest : null,
 		target : null,
 		gathering_amount : 0
@@ -23,13 +23,15 @@ MobileUnitContext.STATUS = {
 	ATTACKING: 7,
 	GATHERING: 8,
 	REPAIRING: 9,
-	BUILDING: 10
+	BUILDING: 10,
+	DYING: 11
 }
 
 function BaseMobileUnit(graphic, info, map, player) {
 	var that = this;
 	BaseUnit.call(this, graphic, info, map, player);
 	this.context = new MobileUnitContext();
+	this.hp = 50;
 	this.attack = 5;
 	this.range = 3;
 	this.speed = 4;
@@ -47,7 +49,7 @@ BaseMobileUnit.prototype.draw = function(status) {
 }
 
 BaseMobileUnit.prototype.getInfo = function() {
-	return "<div>"+this.context.gathering_amount+"</div>"
+	return "<div>"+this.hp+"</div><div>"+this.context.gathering_amount+"</div>"
 }
 
 
@@ -80,12 +82,24 @@ BaseMobileUnit.prototype.main = function() {
 		case MobileUnitContext.STATUS.REPAIRING:
 			this.execute_repairing(event);
 			break;
-		case MobileUnitContext.STATUS.building:
+		case MobileUnitContext.STATUS.BUILDING:
+			break;
+		case MobileUnitContext.STATUS.DYING:
+			this.execute_dying(event);
 			break;
 	}
 }
 
 BaseMobileUnit.prototype.execute_waiting = function(event) {
+	this.count--;
+	if(this.count <= 0) {
+		this.count = 60;
+		var units = this.map.unitManager.getNearTrainableUnits(this, this.player);
+		console.log(units);
+		if(units.length > 0) {
+			this.move_to_enemy(units[0]);
+		}
+	}
 }
 
 BaseMobileUnit.prototype.execute_moving_to_pos = function(event) {
@@ -115,7 +129,12 @@ BaseMobileUnit.prototype.execute_moving_to_resource = function(event) {
 }
 
 BaseMobileUnit.prototype.execute_moving_to_unit = function(event) {
-
+	this.movingProcess();
+	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
+	if(dis < 80) {
+		this.count = 20;
+		this.context.status = MobileUnitContext.STATUS.ATTACKING;
+	}
 }
 
 BaseMobileUnit.prototype.execute_returning = function(event) {
@@ -134,16 +153,20 @@ BaseMobileUnit.prototype.execute_returning = function(event) {
 }
 
 BaseMobileUnit.prototype.execute_attacking = function(event) {
-	if(event.name == "within range") {
-		return {
-			state: STATE.ATTACKING,
-			target: event.context.target
+	this.movingProcess();
+	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
+	if(dis < 80) {
+		this.count--;
+		if(this.count <= 0) {
+			this.count = 20;
+			this.context.target.hp -= this.attack;
+			if(this.context.target.hp <= 0) {
+				this.map.unitManager.remove(this.context.target.getId());
+				this.context.status = MobileUnitContext.STATUS.WAITING;
+			}
 		}
-	}else if(event.name == "not within range") {
-		return {
-			state: STATE.MOVING,
-			target: event.context.target
-		}
+	}else{
+		this.move_to_target(this.context.target);
 	}
 }
 
@@ -162,6 +185,11 @@ BaseMobileUnit.prototype.execute_gathering = function(event) {
 BaseMobileUnit.prototype.execute_repairing = function(event) {
 
 }
+
+BaseMobileUnit.prototype.execute_dying = function(event) {
+
+}
+
 
 BaseMobileUnit.prototype.movingProcess = function() {
 	if(this.nextDestination) {
@@ -197,7 +225,6 @@ BaseMobileUnit.prototype.movingProcess = function() {
 	}
 }
 
-
 BaseMobileUnit.prototype.move = function(d) {
 	this.queue.push(d);
 }
@@ -206,6 +233,12 @@ BaseMobileUnit.prototype.move_to_pos = function(pos) {
 	this.make_route( pos );
 	this.context.status = MobileUnitContext.STATUS.MOVING_TO_POS;
 	this.context.dest = new Math2D.Point2D(pos.x, pos.y);
+}
+
+BaseMobileUnit.prototype.move_to_enemy = function(unit) {
+	this.make_route( unit.position() );
+	this.context.status = MobileUnitContext.STATUS.MOVING_TO_UNIT;
+	this.context.target = unit;
 }
 
 BaseMobileUnit.prototype.move_to_target = function(unit) {
