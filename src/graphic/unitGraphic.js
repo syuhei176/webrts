@@ -2,6 +2,7 @@ var Snap = require('../../thirdparty/snap.svg');
 
 function UnitGraphic(snap, group, options, onLoad) {
 	var that = this;
+	this.snap = snap;
 	this.group = snap.g();
 	this.bound = {x:0,y:0};
 	this._rotate = 0;
@@ -14,6 +15,15 @@ function UnitGraphic(snap, group, options, onLoad) {
 	    if(onLoad) onLoad();
 	});
 }
+
+UnitGraphic.prototype.setPlayerColor = function(player) {
+	var circle = this.snap.circle(0, 0, 10);
+	circle.attr({
+		fill: player.getColor() || "#00f"
+	});
+	this.group.append(circle);
+}
+
 
 UnitGraphic.prototype.remove = function() {
 	this.group.remove();

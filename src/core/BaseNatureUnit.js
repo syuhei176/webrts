@@ -10,8 +10,8 @@ function NatureUnitStatus() {
 NatureUnitStatus.STATUS_BUILDING = 1;
 NatureUnitStatus.STATUS_NORMAL = 2;
 
-function BaseNatureUnit(graphic, info, map) {
-	BaseUnit.call(this, graphic, info, map);
+function BaseNatureUnit(graphic, info, map, player) {
+	BaseUnit.call(this, graphic, info, map, player);
 	this.amount = 100;
 }
 

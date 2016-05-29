@@ -32,7 +32,7 @@ module.exports = [{
 	},
 	unitinfo : {
 		type : 'building',
-		size : [3, 3]
+		size : [2, 2]
 	}
 },{
 	id : 'tree',

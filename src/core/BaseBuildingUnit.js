@@ -1,8 +1,8 @@
 var util = require('util');
 var BaseUnit = require('./BaseUnit');
 
-function BaseBuildingUnit(graphic, info, map) {
-	BaseUnit.call(this, graphic, info, map);
+function BaseBuildingUnit(graphic, info, map, player) {
+	BaseUnit.call(this, graphic, info, map, player);
 }
 
 util.inherits(BaseBuildingUnit, BaseUnit);

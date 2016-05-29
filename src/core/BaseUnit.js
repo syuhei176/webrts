@@ -21,6 +21,7 @@ function BaseUnit(graphic, info, map, player) {
 		console.log("mouseup", e.button);
 		that.emit('click', e);
 	});
+	this.graphic.setPlayerColor(this.player);
 }
 
 util.inherits(BaseUnit, EventEmitter);

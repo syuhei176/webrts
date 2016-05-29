@@ -50,8 +50,9 @@ Game.prototype.start = function(requestAnimationFrame) {
 	unitManager.create('villager', player1).position(100, 100);
 	unitManager.create('villager', player1).position(50, 150);
 	unitManager.create('villager', player1).position(200, 200);
-	unitManager.create('villager', player2).position(200, 300);
-	unitManager.create('villager', player2).position(200, 350);
+	unitManager.create('villager', player2).position(300, 500);
+	unitManager.create('villager', player2).position(250, 550);
+	unitManager.create('villager', player2).position(300, 550);
 	unitManager.create('tree', player_gaia).position(100, 150);
 	unitManager.create('tree', player_gaia).position(600, 150);
 	unitManager.create('tree', player_gaia).position(600, 200);
@@ -95,6 +96,11 @@ Game.prototype.start = function(requestAnimationFrame) {
 			if(selected.player && selected.player.type() == Player.TYPE_HUMAN) {
 				selected.move_to_pos(e.pos);
 			}
+		}
+	});
+	map.on('click', function(e) {
+		if(player1.useResource('tree', 50)) {
+			unitManager.create('town', player1).position(e.pos.x, e.pos.y);
 		}
 	});
 	map.on('selected', function(units) {
