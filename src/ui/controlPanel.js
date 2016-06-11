@@ -19,7 +19,7 @@ function ControlPanel(baseDom) {
 	this.target = null;
 	setInterval(function() {
 		if(that.target) that.infoElem.innerHTML = that.target.getInfo();
-	}, 2000);
+	}, 500);
 }
 
 ControlPanel.prototype.setTarget = function(target) {

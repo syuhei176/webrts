@@ -121,7 +121,7 @@ UnitManager.prototype.getNearTrainableUnits = function(selfUnit, player) {
 		return unit.info.type == 'trainable' && (unit.player.type() != player.type());
 	}).filter(function(unit) {
 		var dis = Math2D.Point2D.distance( selfUnit.position(), unit.position() );
-		return (dis < 100*100);
+		return (dis < 18*18);
 	});
 }
 

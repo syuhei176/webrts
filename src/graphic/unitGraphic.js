@@ -4,6 +4,7 @@ function UnitGraphic(snap, group, options, onLoad) {
 	var that = this;
 	this.snap = snap;
 	this.group = snap.g();
+	this.unitGroup = snap.g();
 	this.bound = {x:0,y:0};
 	this._rotate = 0;
 	this.options = options;
@@ -14,6 +15,10 @@ function UnitGraphic(snap, group, options, onLoad) {
 	    that.group.append(g);
 	    if(onLoad) onLoad();
 	});
+	this.statusText = this.snap.text(0,32,"").attr({
+		"font-size": 20
+	});
+	this.group.append(this.statusText);
 }
 
 UnitGraphic.prototype.setPlayerColor = function(player) {
@@ -24,6 +29,23 @@ UnitGraphic.prototype.setPlayerColor = function(player) {
 	this.group.append(circle);
 }
 
+UnitGraphic.prototype.setStatus = function(text) {
+	this.statusText.attr({
+		text: text
+	});
+}
+
+UnitGraphic.prototype.flashing = function() {
+	var text = this.snap.text(0,0,"Damage").attr({
+		"font-size": 20
+	});
+	this.group.append(text);
+	text.stop().animate({
+		"font-size": 32
+	}, 100, null, function() {
+		text.remove();
+	});
+}
 
 UnitGraphic.prototype.remove = function() {
 	this.group.remove();

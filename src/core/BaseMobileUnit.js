@@ -49,9 +49,19 @@ BaseMobileUnit.prototype.draw = function(status) {
 }
 
 BaseMobileUnit.prototype.getInfo = function() {
-	return "<div>"+this.hp+"</div><div>"+this.context.gathering_amount+"</div>"
+	return "<div><span>hp:</span>"+this.hp+"</div>"+
+	"<div><span>gathering:</span>"+this.context.gathering_amount+"</div>"+
+	"<div><span>count:</span>"+this.count+"</div>"+
+	"<div><span>count2:</span>"+this.count2+"</div>"+
+	"<div><span>status:</span>"+get_status_text(this.context.status)+"</div>";
 }
 
+BaseMobileUnit.prototype.attacked = function(atk) {
+	this.hp -= atk;
+	if(this.hp <= 0) return {alive:false};
+	this.graphic.flashing();
+	return {alive:true};
+}
 
 BaseMobileUnit.prototype.main = function() {
 	switch(this.context.status) {
@@ -90,12 +100,56 @@ BaseMobileUnit.prototype.main = function() {
 	}
 }
 
+BaseMobileUnit.prototype.change_status = function(status) {
+	this.context.status = status;
+	this.graphic.setStatus( get_status_text(this.context.status) );
+}
+
+function get_status_text(status) {
+	switch(status) {
+		case MobileUnitContext.STATUS.WAITING:
+			return "WAITING";
+			break;
+		case MobileUnitContext.STATUS.MOVING_TO_POS:
+			return "MOVING_TO_POS";
+			break;
+		case MobileUnitContext.STATUS.MOVING_TO_BUILDING:
+			return "MOVING_TO_BUILDING";
+			break;
+		case MobileUnitContext.STATUS.MOVING_TO_RESOURCE:
+			return "MOVING_TO_RESOURCE";
+			break;
+		case MobileUnitContext.STATUS.MOVING_TO_UNIT:
+			return "MOVING_TO_UNIT";
+			break;
+		case MobileUnitContext.STATUS.RETURNING:
+			return "RETURNING";
+			break;
+		case MobileUnitContext.STATUS.ATTACKING:
+			return "ATTACKING";
+			break;
+		case MobileUnitContext.STATUS.GATHERING:
+			return "GATHERING";
+			break;
+		case MobileUnitContext.STATUS.REPAIRING:
+			return "REPAIRING";
+			break;
+		case MobileUnitContext.STATUS.BUILDING:
+			return "BUILDING";
+			break;
+		case MobileUnitContext.STATUS.DYING:
+			return "DYING";
+			break;
+	}
+}
+
+
 BaseMobileUnit.prototype.execute_waiting = function(event) {
+	this.move_to_pos_loop = 0;
 	this.count--;
 	if(this.count <= 0) {
 		this.count = 60;
 		var units = this.map.unitManager.getNearTrainableUnits(this, this.player);
-		console.log(units);
 		if(units.length > 0) {
 			this.move_to_enemy(units[0]);
 		}
@@ -107,15 +161,16 @@ BaseMobileUnit.prototype.execute_moving_to_pos = function(event) {
 	if(!this.context.dist) return;
 	var dis = Math2D.Point2D.distance( this.position(), this.context.dist );
 	if(dis < 80) {
-		this.context.status = MobileUnitContext.STATUS.WAITING;
+		this.change_status(MobileUnitContext.STATUS.WAITING);
 	}
+	//長時間移動がなかったら
 }
 
 BaseMobileUnit.prototype.execute_moving_to_building = function(event) {
 	this.movingProcess();
 	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
 	if(dis < 80) {
-		this.context.status = MobileUnitContext.STATUS.WAITING;
+		this.change_status(MobileUnitContext.STATUS.WAITING);
 	}
 }
 
@@ -124,7 +179,7 @@ BaseMobileUnit.prototype.execute_moving_to_resource = function(event) {
 	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
 	if(dis < 80) {
 		this.count = 20;
-		this.context.status = MobileUnitContext.STATUS.GATHERING;
+		this.change_status(MobileUnitContext.STATUS.GATHERING);
 	}
 }
 
@@ -133,7 +188,7 @@ BaseMobileUnit.prototype.execute_moving_to_unit = function(event) {
 	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
 	if(dis < 80) {
 		this.count = 20;
-		this.context.status = MobileUnitContext.STATUS.ATTACKING;
+		this.change_status(MobileUnitContext.STATUS.ATTACKING);
 	}
 }
 
@@ -153,16 +208,19 @@ BaseMobileUnit.prototype.execute_returning = function(event) {
 }
 
 BaseMobileUnit.prototype.execute_attacking = function(event) {
+	var that = this;
 	this.movingProcess();
 	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
 	if(dis < 80) {
 		this.count--;
 		if(this.count <= 0) {
 			this.count = 20;
-			this.context.target.hp -= this.attack;
-			if(this.context.target.hp <= 0) {
-				this.map.unitManager.remove(this.context.target.getId());
-				this.context.status = MobileUnitContext.STATUS.WAITING;
+			var attackedResult = this.context.target.attacked(this.attack);
+			if(!attackedResult.alive) {
+				setTimeout(function() {
+					that.map.unitManager.remove(that.context.target.getId());
+					that.change_status(MobileUnitContext.STATUS.WAITING);
+				}, 20);
 			}
 		}
 	}else{
@@ -192,6 +250,7 @@ BaseMobileUnit.prototype.execute_dying = function(event) {
 
 
 BaseMobileUnit.prototype.movingProcess = function() {
+	console.log( this.nextDestination, get_status_text(this.context.status) );
 	if(this.nextDestination) {
 		//次の目的地がある場合
 		this.pos = this.pos.add(this.vec);
@@ -199,8 +258,17 @@ BaseMobileUnit.prototype.movingProcess = function() {
 			this.pos = this.pos.sub(this.vec);
 			this.count2--;
 			if(this.count2 <= 0) {
+				//moving_to_unitが続くとき
+				this.change_status(MobileUnitContext.STATUS.WAITING);
+			}else if(this.count2 <= 0) {
 				if(this.context.status == MobileUnitContext.STATUS.MOVING_TO_POS) {
-					this.move_to_pos(this.context.dest);
+					this.move_to_pos_loop++;
+					if(this.move_to_pos_loop <= 1) {
+						this.move_to_pos(this.context.dest);
+					}else{
+						//moving_to_posが続くとき
+						this.change_status(MobileUnitContext.STATUS.WAITING);
+					}
 				}else{
 					this.move_to_target(this.context.target);
 				}
@@ -221,6 +289,16 @@ BaseMobileUnit.prototype.movingProcess = function() {
 			this.vec = vec.times(1/50);
 			this.count = 50;
 			this.count2 = 200;
+		}else{
+			if(this.context.status == MobileUnitContext.STATUS.MOVING_TO_UNIT) {
+				this.move_to_target(this.context.target);
+				var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
+				if(dis >= 90 * 90) {
+					this.change_status(MobileUnitContext.STATUS.WAITING);
+				}
+			}else{
+				this.change_status(MobileUnitContext.STATUS.WAITING);
+			}
 		}
 	}
 }
@@ -231,25 +309,25 @@ BaseMobileUnit.prototype.move = function(d) {
 
 BaseMobileUnit.prototype.move_to_pos = function(pos) {
 	this.make_route( pos );
-	this.context.status = MobileUnitContext.STATUS.MOVING_TO_POS;
+	this.change_status(MobileUnitContext.STATUS.MOVING_TO_POS);
 	this.context.dest = new Math2D.Point2D(pos.x, pos.y);
 }
 
 BaseMobileUnit.prototype.move_to_enemy = function(unit) {
 	this.make_route( unit.position() );
-	this.context.status = MobileUnitContext.STATUS.MOVING_TO_UNIT;
+	this.change_status(MobileUnitContext.STATUS.MOVING_TO_UNIT);
 	this.context.target = unit;
 }
 
 BaseMobileUnit.prototype.move_to_target = function(unit) {
 	if(unit.info.type == "nature") {
 		this.make_route( unit.position() );
-		this.context.status = MobileUnitContext.STATUS.MOVING_TO_RESOURCE;
+		this.change_status(MobileUnitContext.STATUS.MOVING_TO_RESOURCE);
 		this.context.target = unit;
 		return true;
 	}else if(unit.info.type == "building") {
 		this.make_route( unit.position() );
-		this.context.status = MobileUnitContext.STATUS.MOVING_TO_BUILDING;
+		this.change_status(MobileUnitContext.STATUS.MOVING_TO_BUILDING);
 		this.context.target = unit;
 		return true;
 	}else{
@@ -260,7 +338,7 @@ BaseMobileUnit.prototype.move_to_target = function(unit) {
 BaseMobileUnit.prototype.return_to_target = function(unit) {
 	if(unit.info.type == "building") {
 		this.make_route( unit.position() );
-		this.context.status = MobileUnitContext.STATUS.RETURNING;
+		this.change_status(MobileUnitContext.STATUS.RETURNING);
 		this.context.target = unit;
 	}else{
 		throw new Error("invalid unit type");
@@ -275,8 +353,9 @@ BaseMobileUnit.prototype.make_route = function(x, y) {
 	var that = this;
 
 	//clear
-	this.count--;
+	this.count = 0;
 	this.queue = [];
+	this.nextDestination = null;
 
 	var startPos = this.positionTile();
 	var endPos = new Math2D.Point2D(Math.floor(x / 50), Math.floor(y / 50));

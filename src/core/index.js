@@ -45,22 +45,20 @@ Game.prototype.start = function(requestAnimationFrame) {
 	player1.on('update', function() {
 		menu.update('tree', player1.resource('tree'));
 	});
-	unitManager.create('town', player1).position(250, 150);
+	unitManager.create('town', player1).position(400, 100);
+	unitManager.create('villager', player1).position(50, 50);
 	unitManager.create('villager', player1).position(100, 50);
+	unitManager.create('villager', player1).position(50, 100);
 	unitManager.create('villager', player1).position(100, 100);
-	unitManager.create('villager', player1).position(50, 150);
-	unitManager.create('villager', player1).position(200, 200);
-	unitManager.create('villager', player2).position(300, 500);
-	unitManager.create('villager', player2).position(250, 550);
-	unitManager.create('villager', player2).position(300, 550);
-	unitManager.create('tree', player_gaia).position(100, 150);
-	unitManager.create('tree', player_gaia).position(600, 150);
-	unitManager.create('tree', player_gaia).position(600, 200);
-	unitManager.create('tree', player_gaia).position(600, 250);
-	unitManager.create('tree', player_gaia).position(450, 200);
-	unitManager.create('tree', player_gaia).position(400, 300);
-	unitManager.create('tree', player_gaia).position(400, 250);
-	unitManager.create('tree', player_gaia).position(150, 50);
+	unitManager.create('villager', player2).position(400, 500);
+	unitManager.create('villager', player2).position(400, 550);
+	unitManager.create('villager', player2).position(450, 500);
+	unitManager.create('villager', player2).position(450, 550);
+	unitManager.create('tree', player_gaia).position(150, 200);
+	unitManager.create('tree', player_gaia).position(150, 250);
+	unitManager.create('tree', player_gaia).position(150, 300);
+	unitManager.create('tree', player_gaia).position(200, 300);
+	unitManager.create('tree', player_gaia).position(300, 300);
 
 	var selected = null;
 	unitManager.on('target', function(e) {
