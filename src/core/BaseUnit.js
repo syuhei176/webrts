@@ -37,7 +37,7 @@ BaseUnit.prototype.remove = function() {
 BaseUnit.prototype.collBound = function() {
 	var offset = 5;
 	var info = this.info;
-	if(info.type == 'trainable') offset = 15;
+	if(info.type == 'trainable') offset = 5;
 	if(info.size.length == 2) {
 		var w = info.size[0] * 50;
 		var h = info.size[1] * 50;

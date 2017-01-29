@@ -8,13 +8,12 @@ var Map = require('./map');
 var Player = require('./player');
 var Platform = require('../platform');
 
-function Game(requestAnimationFrame) {
-	this.start(requestAnimationFrame);
+function Game(mainDom, requestAnimationFrame) {
+	this.start(mainDom, requestAnimationFrame);
 }
 
-Game.prototype.start = function(requestAnimationFrame) {
+Game.prototype.start = function(mainDom, requestAnimationFrame) {
 	var platform = Platform();
-	var mainDom = document.getElementById('main');
 	var controlPanel = new ControlPanel(mainDom);
 	var menu = new Menu(mainDom);
 	var preloader = new Preloader(mainDom);
@@ -50,10 +49,16 @@ Game.prototype.start = function(requestAnimationFrame) {
 	unitManager.create('villager', player1).position(100, 50);
 	unitManager.create('villager', player1).position(50, 100);
 	unitManager.create('villager', player1).position(100, 100);
-	unitManager.create('villager', player2).position(400, 500);
-	unitManager.create('villager', player2).position(400, 550);
-	unitManager.create('villager', player2).position(450, 500);
+	unitManager.create('villager', player2).position(425, 525);
+	unitManager.create('villager', player2).position(425, 550);
+	unitManager.create('villager', player2).position(450, 525);
 	unitManager.create('villager', player2).position(450, 550);
+	unitManager.create('villager', player2).position(475, 525);
+	unitManager.create('villager', player2).position(475, 550);
+	unitManager.create('villager', player2).position(500, 525);
+	unitManager.create('villager', player2).position(500, 550);
+	unitManager.create('villager', player2).position(525, 525);
+	unitManager.create('villager', player2).position(525, 550);
 	unitManager.create('tree', player_gaia).position(150, 200);
 	unitManager.create('tree', player_gaia).position(150, 250);
 	unitManager.create('tree', player_gaia).position(150, 300);
@@ -105,6 +110,12 @@ Game.prototype.start = function(requestAnimationFrame) {
 		selected = units;
 		if(selected.length > 0)
 			controlPanel.setTarget(selected[0]);
+		console.log(units);
+		units.forEach(function(unit) {
+			if(unit.info.type == "building") {
+				unit.addUnitCreationQueue();
+			}
+		});
 	});
 	platform.setupMap(map);
 	platform.setupUnitManager(unitManager);

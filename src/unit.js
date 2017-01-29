@@ -8,7 +8,7 @@ module.exports = [{
 	},
 	unitinfo : {
 		type : 'trainable',
-		size : 1
+		size : 0.5
 	}
 },{
 	id : 'militia',

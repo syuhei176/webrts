@@ -177,7 +177,7 @@ BaseMobileUnit.prototype.execute_moving_to_building = function(event) {
 BaseMobileUnit.prototype.execute_moving_to_resource = function(event) {
 	this.movingProcess();
 	var dis = Math2D.Point2D.distance( this.position(), this.context.target.position() );
-	if(dis < 80) {
+	if(dis < 22) {
 		this.count = 20;
 		this.change_status(MobileUnitContext.STATUS.GATHERING);
 	}
@@ -248,6 +248,10 @@ BaseMobileUnit.prototype.execute_dying = function(event) {
 
 }
 
+BaseMobileUnit.prototype.random_move = function() {
+	var r = Math.random()*20;
+	this.pos = this.pos.add(new Math2D.Point2D(r, 20 - r));
+}
 
 BaseMobileUnit.prototype.movingProcess = function() {
 	console.log( this.nextDestination, get_status_text(this.context.status) );
@@ -259,7 +263,9 @@ BaseMobileUnit.prototype.movingProcess = function() {
 			this.count2--;
 			if(this.count2 <= 0) {
 				//moving_to_unitが続くとき
-				this.change_status(MobileUnitContext.STATUS.WAITING);
+				//random move
+				this.random_move();
+				//this.change_status(MobileUnitContext.STATUS.WAITING);
 			}else if(this.count2 <= 0) {
 				if(this.context.status == MobileUnitContext.STATUS.MOVING_TO_POS) {
 					this.move_to_pos_loop++;

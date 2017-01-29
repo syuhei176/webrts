@@ -6,16 +6,38 @@ function RTS() {
 
 }
 
+
 RTS.prototype.start = function() {
 	window.addEventListener('load', function() {
 
 		var requestAnimationFrame = getRequestAnimationFrame();
+		var mainDom = document.getElementById('main');
 
-		//var item = new PanelItem();
-		//gameを作成
-		var game = new Game(requestAnimationFrame);
-		//item.add(game);
+		var selectMenuDom = document.createElement('div');
+		mainDom.appendChild(selectMenuDom);
+		select_menu(selectMenuDom, function(stage) {
+			mainDom.removeChild(selectMenuDom);
+			var gameDom = document.createElement('div');
+			mainDom.appendChild(gameDom);
+			var game = new Game(gameDom, requestAnimationFrame);
+		});
 	});
+
+	function select_menu(dom, callback) {
+		var stage = [];
+		stage[0] = document.createElement('div');
+		stage[1] = document.createElement('div');
+		dom.appendChild(stage[0]);
+		dom.appendChild(stage[1]);
+		stage[0].textContent = "Stage 1";
+		stage[1].textContent = "Stage 2";
+		stage[0].addEventListener('click', function(e) {
+			callback(0);
+		});
+		stage[1].addEventListener('click', function(e) {
+			callback(1);
+		});
+	}
 }
 
 function getRequestAnimationFrame() {
