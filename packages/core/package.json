@@ -1,0 +1,43 @@
+{
+  "name": "@webrts/core",
+  "version": "0.0.1",
+  "description": "coder",
+  "author": {
+    "name": "Cryptoeconomics Lab",
+    "url": "https://www.cryptoeconomicslab.com/"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "license": "MIT",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "build:check": "tsc --noEmit",
+    "lint": "eslint --ext ts,tsx src",
+    "doc": "typedoc --out docs src",
+    "clean": "rm -rf lib docs",
+    "watch": "tsc --build --watch"
+  },
+  "gitHead": "ceeeebcd2f4ec6f1808b2dc08ecb590490052de5",
+  "devDependencies": {
+    "@types/uuid": "^7.0.2"
+  },
+  "dependencies": {
+    "@svgdotjs/svg.js": "^3.0.16",
+    "@webrts/algorithm": "^0.0.1",
+    "@webrts/math2d": "^0.0.1",
+    "svg.js": "^2.7.1",
+    "uuid": "^7.0.2"
+  }
+}

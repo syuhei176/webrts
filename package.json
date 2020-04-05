@@ -1,30 +1,51 @@
 {
   "name": "rts-util",
-  "descrption": "real time storategy utility",
-  "version": "0.0.1",
-  "author": {
-    "name": "Shuhei Hiya"
-  },
-  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node app"
+    "watch": "lerna run --parallel watch",
+    "build": "lerna run build",
+    "publish": "npm run build && lerna publish",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "engines": {
-    "node": ">=0.10.*"
-  },
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "eve": "^0.5.0",
-    "eventemitter2": "^0.4.14",
-    "uuid": "^2.0.1",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "@types/jest": "^25.1.4",
+    "@types/node": "^13.9.2",
+    "@typescript-eslint/eslint-plugin": "^2.24.0",
+    "@typescript-eslint/parser": "^2.24.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^25.1.0",
+    "lerna": "^3.20.2",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.2.1",
+    "ts-node": "^8.7.0",
+    "typescript": "^3.8.3"
   },
-  "devDependencies": {
-    "browserify": "*",
-    "gulp": "*",
-    "gulp-connect": "*",
-    "gulp-mocha": "*",
-    "gulp-plumber": "^1.0.1",
-    "gulp-uglify": "*"
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testMatch": [
+      "**/__tests__/**/?(*.)+(spec|test).(ts|js)",
+      "**/?(*.)+(spec|test).ts"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "tsconfig.json"
+      }
+    },
+    "collectCoverageFrom": [
+      "packages/**/src/**/*.ts?(x)",
+      "!**/@types/**"
+    ]
   }
 }
