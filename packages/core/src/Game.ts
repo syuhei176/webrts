@@ -7,6 +7,7 @@ import { Menu } from './ui/menu'
 import { Preloader } from './ui/preloader'
 import { UnitManager } from './UnitManager'
 import { Player, PlayerType } from './Player'
+import { Unit } from './Unit'
 
 export class Game {
   constructor(mainDom, requestAnimationFrame) {}
@@ -60,9 +61,8 @@ export class Game {
     unitManager.create('tree', player_gaia).setPos(200, 300)
     unitManager.create('tree', player_gaia).setPos(300, 300)
 
-    let selected: any[] | any = null
+    let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
-      console.log(e)
       if (selected) {
         if (selected instanceof Array) {
           selected.forEach(function(s) {
@@ -73,7 +73,7 @@ export class Game {
         }
       }
       function select_target(selected, target) {
-        if (target.player && target.player.type() == PlayerType.ENEMY) {
+        if (target.player && target.player.type === PlayerType.ENEMY) {
           selected.move_to_enemy(target)
         } else {
           selected.move_to_target(target)
@@ -103,8 +103,9 @@ export class Game {
     })
     map.on('selected', function(units) {
       selected = units
-      if (selected.length > 0) controlPanel.setTarget(selected[0])
-      console.log(units)
+      if (Array.isArray(selected) && selected.length > 0) {
+        controlPanel.setTarget(selected[0])
+      }
       units.forEach(function(unit) {
         if (unit.info.type == 'building') {
           unit.addUnitCreationQueue()

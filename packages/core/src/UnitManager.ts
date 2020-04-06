@@ -84,20 +84,8 @@ export class UnitManager extends EventEmitter {
           this.emit('target', { unit: person, event: e })
         }
       )
-      /*
-      this.on('click'
-        e,
-        () => {
-          this.select([person])
-          this.emit('click', { unit: person, event: e })
-        },
-        () => {
-          this.emit('target', { unit: person, event: e })
-        }
-      )
-      */
     })
-    this.units[person.id] = person
+    this.units.set(person.id, person)
     return person
   }
 
@@ -107,52 +95,33 @@ export class UnitManager extends EventEmitter {
   }
 
   getUnits() {
-    return Object.keys(this.units).map(k => {
-      return this.units[k]
-    })
+    return Array.from(this.units.values())
   }
 
   getTrainableUnits() {
-    return Object.keys(this.units)
-      .map(k => {
-        return this.units[k]
-      })
-      .filter(unit => {
-        return unit.info.type == 'trainable'
-      })
-  }
-
-  getCollUnits() {
-    return Object.keys(this.units).map(k => {
-      return this.units[k]
+    return this.getUnits().filter(unit => {
+      return unit.info.type == 'trainable'
     })
   }
 
-  getNearNature() {
-    return Object.keys(this.units)
-      .map(k => {
-        return this.units[k]
-      })
-      .filter(unit => {
-        return unit.info.type == 'nature'
-      })
+  getCollUnits() {
+    return this.getUnits()
+  }
+
+  getNearNature(): NatureUnit[] {
+    return this.getUnits().filter(unit => {
+      return unit.info.type == 'nature'
+    }) as NatureUnit[]
   }
 
   getNearBuilding() {
-    return Object.keys(this.units)
-      .map(k => {
-        return this.units[k]
-      })
-      .filter(unit => {
-        return unit.info.type == 'building'
-      })
+    return this.getUnits().filter(unit => {
+      return unit.info.type == 'building'
+    }) as BaseBuildingUnit[]
   }
 
   getNearTrainableUnits(selfUnit: Unit, player: Player) {
-    const units: Unit[] = []
-    for (let unit of this.units.values()) {
-      units.push(unit)
-    }
+    const units: Unit[] = this.getUnits()
     return units
       .filter(unit => {
         return unit.info.type == 'trainable' && unit.player.type != player.type

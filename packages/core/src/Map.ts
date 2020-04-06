@@ -4,6 +4,7 @@ import { Point2d } from '@webrts/math2d'
 import { UnitManager } from './UnitManager'
 import { EventEmitter } from 'events'
 import { RectangleSelector } from './ui/RectangleSelector'
+import { Draggable } from './Draggable'
 
 export class Map extends EventEmitter {
   width: number
@@ -30,25 +31,26 @@ export class Map extends EventEmitter {
     this.coll.attr({
       fill: '#7f7'
     })
-    this.coll.mousedown((e: any) => {
-      console.log('down')
-      rectangleSelector.start(e.pageX, e.pageY)
-    })
-    this.coll.mousemove((e: any) => {
-      console.log('move')
-      rectangleSelector.move(e.x, e.y)
-    })
-    this.coll.mouseup(() => {
-      console.log('up')
-      rectangleSelector.end()
-      if (this.unitManager) {
-        const units = this.unitManager.getTrainableUnits().filter(unit => {
-          return rectangleSelector.isContained(this.global2screen(unit.pos))
-        })
-        this.unitManager.select(units)
-        this.emit('selected', units)
+    const draggable = new Draggable(this.doc, this.coll)
+    draggable.drag(
+      pos => {
+        rectangleSelector.start(pos.x, pos.y)
+      },
+      diff => {
+        rectangleSelector.move(diff.x, diff.y)
+      },
+      () => {
+        rectangleSelector.end()
+        if (this.unitManager) {
+          const units = this.unitManager.getTrainableUnits().filter(unit => {
+            return rectangleSelector.isContained(this.global2screen(unit.pos))
+          })
+          this.unitManager.select(units)
+          this.emit('selected', units)
+        }
       }
-    })
+    )
+
     this.clickHandler = function(e) {}
     this.coll.mousedown(e => {
       var pos = this.screen2global(e.pageX, e.pageY)
@@ -101,7 +103,6 @@ export class Map extends EventEmitter {
   move(x: number, y: number) {
     this.pos = this.pos.add(new Point2d(x, y))
     this.applyDisplay()
-    console.log(this.pos)
   }
 
   applyDisplay() {
@@ -117,7 +118,7 @@ export class Map extends EventEmitter {
       this.unitManager
         .getUnits()
         .filter(function(unit) {
-          return unit.getId() != targetUnit.id
+          return unit.id != targetUnit.id
         })
         .map(function(u) {
           return u.collBound()

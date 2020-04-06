@@ -164,7 +164,6 @@ export class MobileUnit extends Unit {
     this.movingProcess()
     var dis = Point2d.distance(this.pos, this.context.target?.pos)
     if (dis < 80 && this.map.unitManager) {
-      console.log('returned')
       this.player.addResource('tree', this.context.gatheringAmount)
       this.context.gatheringAmount = 0
       this.count = 20
@@ -219,7 +218,6 @@ export class MobileUnit extends Unit {
   }
 
   movingProcess() {
-    console.log(this.nextDestination, this.context.status)
     if (this.nextDestination) {
       //次の目的地がある場合
       this.pos = this.pos.add(this.vec)
@@ -256,9 +254,7 @@ export class MobileUnit extends Unit {
       this.nextDestination = this.queue.shift()
       if (this.nextDestination) {
         var vec = this.nextDestination.sub(this.pos)
-        this.graphic.rotate(
-          (Math.atan(vec.getY() / vec.getX()) / Math.PI) * 180 + 90
-        )
+        this.graphic.rotate((Math.atan(vec.y / vec.x) / Math.PI) * 180 + 90)
         this.vec = vec.times(1 / 50)
         this.count = 50
         this.count2 = 200
@@ -287,19 +283,19 @@ export class MobileUnit extends Unit {
   }
 
   move_to_enemy(unit) {
-    this.make_route(unit.position())
+    this.make_route(unit.pos)
     this.change_status(MobileUnitStatus.MOVING_TO_UNIT)
     this.context.target = unit
   }
 
   move_to_target(unit) {
     if (unit.info.type == 'nature') {
-      this.make_route(unit.position())
+      this.make_route(unit.pos)
       this.change_status(MobileUnitStatus.MOVING_TO_RESOURCE)
       this.context.target = unit
       return true
     } else if (unit.info.type == 'building') {
-      this.make_route(unit.position())
+      this.make_route(unit.pos)
       this.change_status(MobileUnitStatus.MOVING_TO_BUILDING)
       this.context.target = unit
       return true
@@ -310,7 +306,7 @@ export class MobileUnit extends Unit {
 
   return_to_target(unit) {
     if (unit.info.type == 'building') {
-      this.make_route(unit.position())
+      this.make_route(unit.pos)
       this.change_status(MobileUnitStatus.RETURNING)
       this.context.target = unit
     } else {
