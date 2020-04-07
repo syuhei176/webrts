@@ -1,7 +1,7 @@
 {
   "name": "@webrts/algorithm",
   "version": "0.0.1",
-  "description": "math2d",
+  "description": "algorithm for RTS",
   "author": {
     "name": "Cryptoeconomics Lab",
     "url": "https://www.cryptoeconomicslab.com/"

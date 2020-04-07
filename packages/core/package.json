@@ -1,7 +1,7 @@
 {
   "name": "@webrts/core",
   "version": "0.0.1",
-  "description": "coder",
+  "description": "core modules for RTS",
   "author": {
     "name": "Cryptoeconomics Lab",
     "url": "https://www.cryptoeconomicslab.com/"
