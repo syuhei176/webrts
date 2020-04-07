@@ -89,7 +89,7 @@ export class MobileUnit extends Unit {
       case MobileUnitStatus.MOVING_TO_UNIT:
         this.execute_moving_to_unit(event)
         break
-      case MobileUnitStatus.REPAIRING:
+      case MobileUnitStatus.RETURNING:
         this.execute_returning(event)
         break
       case MobileUnitStatus.ATTACKING:

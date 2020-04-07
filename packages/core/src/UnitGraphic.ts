@@ -1,6 +1,5 @@
 import SVG from 'svg.js'
 import { Point2d } from '@webrts/math2d'
-import { Player } from './Player'
 import { IGraphic } from './interfaces/IGraphic'
 
 export class UnitGraphic implements IGraphic {
@@ -24,7 +23,7 @@ export class UnitGraphic implements IGraphic {
     this.unitGroup = doc.group()
     this.options = options
     group.add(this.group)
-    const image = doc.image(options.path)
+    const image = doc.image(options.path).size(options.width, options.height)
     onLoad()
     this.group.add(image)
     this.statusText = this.doc
@@ -41,7 +40,7 @@ export class UnitGraphic implements IGraphic {
   }
 
   setPlayerColor(color: string) {
-    var circle = this.doc.circle(10).move(0, 0)
+    var circle = this.doc.circle(16).move(0, 0)
     circle.attr({
       fill: color || '#00f'
     })
@@ -87,13 +86,13 @@ export class UnitGraphic implements IGraphic {
   getPos() {}
   getWidth() {}
 
-  setPos(x, y) {
+  setPos(x: number, y: number) {
     this.bound.x = x
     this.bound.y = y
     this.applyDisplay()
   }
 
-  rotate(r) {
+  rotate(r: number) {
     this._rotate = r
     this.applyDisplay()
   }

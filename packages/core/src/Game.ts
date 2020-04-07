@@ -45,7 +45,7 @@ export class Game {
     unitManager.create('villager', player1).setPos(100, 50)
     unitManager.create('villager', player1).setPos(50, 100)
     unitManager.create('villager', player1).setPos(100, 100)
-    unitManager.create('villager', player2).setPos(425, 525)
+    unitManager.create('villager', player1).setPos(150, 70)
     unitManager.create('villager', player2).setPos(425, 550)
     unitManager.create('villager', player2).setPos(450, 525)
     unitManager.create('villager', player2).setPos(450, 550)
