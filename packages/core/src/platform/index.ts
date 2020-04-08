@@ -3,7 +3,7 @@ import sp from './sp'
 import UserAgent from './ua'
 
 export default function() {
-  var ua = UserAgent()
+  const ua = UserAgent()
   if (ua.mobile[0] || ua.tablet) {
     return sp()
   } else {

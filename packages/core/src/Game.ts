@@ -10,18 +10,16 @@ import { Player, PlayerType } from './Player'
 import { Unit } from './Unit'
 
 export class Game {
-  constructor(mainDom, requestAnimationFrame) {}
-
   start(mainDom, requestAnimationFrame, unitInfo) {
-    var platform = Platform()
-    var controlPanel = new ControlPanel(mainDom)
-    var menu = new Menu(mainDom)
-    var preloader = new Preloader(mainDom)
+    const platform = Platform()
+    const controlPanel = new ControlPanel(mainDom)
+    const menu = new Menu(mainDom)
+    const preloader = new Preloader(mainDom)
     preloader.show()
-    var svgWrapper = document.createElement('div')
+    const svgWrapper = document.createElement('div')
     svgWrapper.id = 'svgmain'
-    var width = window.innerWidth
-    var height = window.innerHeight
+    const width = window.innerWidth
+    const height = window.innerHeight
     mainDom.appendChild(svgWrapper)
 
     const doc = SVG('svgmain').size(width, height)
@@ -32,9 +30,9 @@ export class Game {
     //map.generate(0);
 
     map.setUnitManager(unitManager)
-    var player1 = new Player(PlayerType.HUMAN)
-    var player2 = new Player(PlayerType.ENEMY)
-    var player_gaia = new Player(PlayerType.GAIA)
+    const player1 = new Player(PlayerType.HUMAN)
+    const player2 = new Player(PlayerType.ENEMY)
+    const playerGaia = new Player(PlayerType.GAIA)
 
     menu.update('tree', 0)
     player1.on('update', function() {
@@ -55,24 +53,24 @@ export class Game {
     unitManager.create('villager', player2).setPos(500, 550)
     unitManager.create('villager', player2).setPos(525, 525)
     unitManager.create('villager', player2).setPos(525, 550)
-    unitManager.create('tree', player_gaia).setPos(150, 200)
-    unitManager.create('tree', player_gaia).setPos(150, 250)
-    unitManager.create('tree', player_gaia).setPos(150, 300)
-    unitManager.create('tree', player_gaia).setPos(200, 300)
-    unitManager.create('tree', player_gaia).setPos(300, 300)
+    unitManager.create('tree', playerGaia).setPos(150, 200)
+    unitManager.create('tree', playerGaia).setPos(150, 250)
+    unitManager.create('tree', playerGaia).setPos(150, 300)
+    unitManager.create('tree', playerGaia).setPos(200, 300)
+    unitManager.create('tree', playerGaia).setPos(300, 300)
 
     let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
       if (selected) {
         if (selected instanceof Array) {
           selected.forEach(function(s) {
-            select_target(s, e.unit)
+            selectTarget(s, e.unit)
           })
         } else {
-          select_target(selected, e.unit)
+          selectTarget(selected, e.unit)
         }
       }
-      function select_target(selected, target) {
+      function selectTarget(selected, target) {
         if (target.player && target.player.type === PlayerType.ENEMY) {
           selected.move_to_enemy(target)
         } else {
@@ -84,15 +82,15 @@ export class Game {
       if (selected) {
         if (selected instanceof Array) {
           selected.forEach(function(s) {
-            move_to_pos(s, e.pos)
+            moveToPos(s, e.pos)
           })
         } else {
-          move_to_pos(selected, e.pos)
+          moveToPos(selected, e.pos)
         }
       }
-      function move_to_pos(selected, pos) {
+      function moveToPos(selected, pos) {
         if (selected.player && selected.player.type == PlayerType.HUMAN) {
-          selected.move_to_pos(e.pos)
+          selected.moveToPos(e.pos)
         }
       }
     })
@@ -118,13 +116,13 @@ export class Game {
     function gameLoop() {
       unitManager.main()
     }
-    var recursiveAnim = function() {
+    const recursiveAnim = function() {
       gameLoop()
       requestAnimationFrame(recursiveAnim)
     }
     requestAnimationFrame(recursiveAnim)
 
-    var graph = map.getCollGraph({ except: [] })
+    const graph = map.getCollGraph({ except: [] })
     /*
     for(var i=0;i < graph.length;i++) {
       for(var j=0;j < graph[i].length;j++) {

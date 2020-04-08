@@ -1,11 +1,12 @@
 {
-  "name": "rts-util",
+  "name": "webrts",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "watch": "lerna run --parallel watch",
     "build": "lerna run build",
+    "lint": "lerna run lint",
     "publish": "npm run build && lerna publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

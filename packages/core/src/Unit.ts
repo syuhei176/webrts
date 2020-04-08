@@ -11,7 +11,7 @@ export interface UnitInfo {
   type: string
 }
 
-export class Unit extends EventEmitter {
+export abstract class Unit extends EventEmitter {
   public id: string
   public pos: Point2d
   constructor(
@@ -38,15 +38,17 @@ export class Unit extends EventEmitter {
     this.graphic.remove()
   }
   collBound() {
-    var offset = 5
-    var info = this.info
+    const info = this.info
+    let offset = 5
+    let w: number
+    let h: number
     if (info.type == 'trainable') offset = 5
     if (Array.isArray(info.size)) {
-      var w = info.size[0] * 50
-      var h = info.size[1] * 50
+      w = info.size[0] * 50
+      h = info.size[1] * 50
     } else {
-      var w = info.size * 50
-      var h = info.size * 50
+      w = info.size * 50
+      h = info.size * 50
     }
     return {
       x: this.pos.x + offset,
@@ -72,5 +74,5 @@ export class Unit extends EventEmitter {
     this.graphic.setPos(x, y)
   }
 
-  main() {}
+  abstract main(): void
 }

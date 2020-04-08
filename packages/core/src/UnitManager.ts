@@ -8,6 +8,7 @@ import { NatureUnit } from './NatureUnit'
 import { BaseBuildingUnit } from './Building'
 import { MobileUnit } from './MobileUnit'
 import { UnitGraphic } from './UnitGraphic'
+import { ClickHandler } from './types'
 
 export interface UnitDef {
   id: string
@@ -23,7 +24,7 @@ export class UnitManager extends EventEmitter {
   private selected: Unit[]
   private cursors: SVG.Circle[]
   private map: IMap | null = null
-  clickHandler: (e: any, a: () => void, b: () => void) => void = function(e) {}
+  clickHandler: null | ClickHandler = null
   constructor(readonly doc: SVG.Doc) {
     super()
     this.group = doc.group()
@@ -34,7 +35,8 @@ export class UnitManager extends EventEmitter {
   setMap(map: IMap) {
     this.map = map
   }
-  setClickHandler(clickHandler) {
+
+  setClickHandler(clickHandler: ClickHandler) {
     this.clickHandler = clickHandler
   }
 
@@ -45,7 +47,7 @@ export class UnitManager extends EventEmitter {
   }
 
   main() {
-    for (let unit of this.units.values()) {
+    for (const unit of this.units.values()) {
       unit.main()
     }
   }
@@ -54,17 +56,12 @@ export class UnitManager extends EventEmitter {
     if (!this.map) {
       throw new Error('map must not be null')
     }
-    var metaUnit = this.metaUnits[metaUnitId]
-    var ug = new UnitGraphic(
-      this.doc,
-      this.group,
-      {
-        path: metaUnit.graphic.path,
-        width: metaUnit.graphic.width,
-        height: metaUnit.graphic.height
-      },
-      () => {}
-    )
+    const metaUnit = this.metaUnits[metaUnitId]
+    const ug = new UnitGraphic(this.doc, this.group, {
+      path: metaUnit.graphic.path,
+      width: metaUnit.graphic.width,
+      height: metaUnit.graphic.height
+    })
     let person: Unit
     if (metaUnit.unitinfo.type == 'nature') {
       person = new NatureUnit(ug, metaUnit.unitinfo, this.map, player)
@@ -74,16 +71,18 @@ export class UnitManager extends EventEmitter {
       person = new MobileUnit(ug, metaUnit.unitinfo, this.map, player)
     }
     person.on('click', e => {
-      this.clickHandler(
-        e,
-        () => {
-          this.select([person])
-          this.emit('click', { unit: person, event: e })
-        },
-        () => {
-          this.emit('target', { unit: person, event: e })
-        }
-      )
+      if (this.clickHandler) {
+        this.clickHandler(
+          e,
+          () => {
+            this.select([person])
+            this.emit('click', { unit: person, event: e })
+          },
+          () => {
+            this.emit('target', { unit: person, event: e })
+          }
+        )
+      }
     })
     this.units.set(person.id, person)
     return person
@@ -127,7 +126,7 @@ export class UnitManager extends EventEmitter {
         return unit.info.type == 'trainable' && unit.player.type != player.type
       })
       .filter(unit => {
-        var dis = Point2d.distance(selfUnit.pos, unit.pos)
+        const dis = Point2d.distance(selfUnit.pos, unit.pos)
         return dis < 18 * 18
       })
   }
