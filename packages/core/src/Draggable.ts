@@ -2,7 +2,7 @@ import SVG, { Point } from 'svg.js'
 import { Point2d } from '@webrts/math2d'
 
 export class Draggable {
-  private isDragging: boolean = false
+  private isDragging = false
   private startPos: Point2d = Point2d.zero()
   constructor(readonly doc: SVG.Doc, readonly coll: SVG.Element) {}
 

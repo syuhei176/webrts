@@ -5,6 +5,7 @@ import { UnitManager } from './UnitManager'
 import { EventEmitter } from 'events'
 import { RectangleSelector } from './ui/RectangleSelector'
 import { Draggable } from './Draggable'
+import { ClickHandler } from './types'
 
 export class Map extends EventEmitter {
   width: number
@@ -13,7 +14,7 @@ export class Map extends EventEmitter {
   group: SVG.G
   coll: SVG.Rect
   pos: Point2d = Point2d.zero()
-  clickHandler: (e: any, a: () => void, b: () => void) => void
+  clickHandler: null | ClickHandler = null
 
   constructor(
     readonly doc: SVG.Doc,
@@ -22,8 +23,8 @@ export class Map extends EventEmitter {
     super()
     this.width = 80
     this.height = 80
-    var width = 2000
-    var height = 2000
+    const width = 2000
+    const height = 2000
     this.unitManager = null
     this.group = this.doc.group()
     this.coll = this.doc.rect(width, height).move(0, 0)
@@ -51,24 +52,25 @@ export class Map extends EventEmitter {
       }
     )
 
-    this.clickHandler = function(e) {}
     this.coll.mousedown(e => {
-      var pos = this.screen2global(e.pageX, e.pageY)
-      this.clickHandler(
-        e,
-        () => {
-          this.emit('click', {
-            pos: pos
-          })
-          this.unitManager?.select([])
-        },
-        () => {
-          this.emit('target', {
-            pos: pos
-          })
-          this.unitManager?.select([])
-        }
-      )
+      const pos = this.screen2global(e.pageX, e.pageY)
+      if (this.clickHandler) {
+        this.clickHandler(
+          e,
+          () => {
+            this.emit('click', {
+              pos: pos
+            })
+            this.unitManager?.select([])
+          },
+          () => {
+            this.emit('target', {
+              pos: pos
+            })
+            this.unitManager?.select([])
+          }
+        )
+      }
     })
     window.addEventListener(
       'contextmenu',
@@ -106,7 +108,7 @@ export class Map extends EventEmitter {
   }
 
   applyDisplay() {
-    var myMatrix = new SVG.Matrix()
+    const myMatrix = new SVG.Matrix()
     this.group.matrix(myMatrix.translate(this.pos.x, this.pos.y))
   }
 
@@ -124,7 +126,7 @@ export class Map extends EventEmitter {
           return u.collBound()
         })
         .filter(function(bound) {
-          var targetBound = targetUnit.collBound()
+          const targetBound = targetUnit.collBound()
           return (
             bound.x < targetBound.x + targetBound.w &&
             targetBound.x < bound.x + bound.w &&
@@ -139,11 +141,11 @@ export class Map extends EventEmitter {
     if (!this.unitManager) {
       throw new Error('unitManager must not be null')
     }
-    var options = _options || {}
-    var graph: any[][] = []
-    for (var i = 0; i < this.width; i++) {
-      var wGraph: number[] = []
-      for (var j = 0; j < this.height; j++) {
+    const options = _options || {}
+    const graph: any[][] = []
+    for (let i = 0; i < this.width; i++) {
+      const wGraph: number[] = []
+      for (let j = 0; j < this.height; j++) {
         wGraph.push(1)
       }
       graph.push(wGraph)
@@ -151,12 +153,14 @@ export class Map extends EventEmitter {
     this.unitManager
       .getCollUnits()
       .map(function(u: Unit) {
+        let w: number
+        let h: number
         if (Array.isArray(u.info.size) && u.info.size.length == 2) {
-          var w = u.info.size[0]
-          var h = u.info.size[1]
+          w = u.info.size[0]
+          h = u.info.size[1]
         } else {
-          var w = u.info.size as number
-          var h = u.info.size as number
+          w = u.info.size as number
+          h = u.info.size as number
         }
         return {
           x: u.tilePos.x,
@@ -166,8 +170,8 @@ export class Map extends EventEmitter {
         }
       })
       .forEach(function(p) {
-        for (var i = p.x; i < p.x + p.w; i++) {
-          for (var j = p.y; j < p.y + p.h; j++) {
+        for (let i = p.x; i < p.x + p.w; i++) {
+          for (let j = p.y; j < p.y + p.h; j++) {
             graph[i][j] = 0
           }
         }

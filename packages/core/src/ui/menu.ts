@@ -1,8 +1,7 @@
 export class Menu {
   treeDom: any
   constructor(baseDom) {
-    var that = this
-    var wrapper = document.createElement('div')
+    const wrapper = document.createElement('div')
     wrapper.classList.add('menu-panel-wrapper')
     baseDom.appendChild(wrapper)
 

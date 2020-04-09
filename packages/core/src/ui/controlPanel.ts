@@ -2,14 +2,13 @@ export class ControlPanel {
   infoElem: any
   target: any
   constructor(baseDom: any) {
-    var that = this
-    var wrapper = document.createElement('div')
+    const wrapper = document.createElement('div')
     wrapper.classList.add('control-panel-wrapper')
     baseDom.appendChild(wrapper)
 
-    var mapDom = document.createElement('div')
-    var infoDom = document.createElement('div')
-    var palletDom = document.createElement('div')
+    const mapDom = document.createElement('div')
+    const infoDom = document.createElement('div')
+    const palletDom = document.createElement('div')
 
     mapDom.classList.add('map-panel-wrapper')
     infoDom.classList.add('info-panel-wrapper')
@@ -20,8 +19,8 @@ export class ControlPanel {
 
     this.infoElem = infoDom
     this.target = null
-    setInterval(function() {
-      if (that.target) that.infoElem.innerHTML = that.target.getInfo()
+    setInterval(() => {
+      if (this.target) this.infoElem.innerHTML = this.target.getInfo()
     }, 500)
   }
   setTarget(target) {

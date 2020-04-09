@@ -18,7 +18,7 @@ export class NatureUnit extends Unit {
   decrease(amount: number) {
     this.amount -= amount
     if (this.amount < 0) {
-      var left = -1 * this.amount
+      const left = -1 * this.amount
       this.amount = 0
       this.map.unitManager?.remove(this.id)
       return amount - left
@@ -27,7 +27,9 @@ export class NatureUnit extends Unit {
     }
   }
 
-  main() {}
+  main() {
+    return
+  }
 
   getInfo() {
     return '<div>' + this.amount + '</div>'

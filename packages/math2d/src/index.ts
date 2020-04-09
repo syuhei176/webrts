@@ -133,7 +133,7 @@ export class Line2d {
     y2 -= y1
     px -= x1
     py -= y1
-    var ccw = px * y2 - py * x2
+    let ccw = px * y2 - py * x2
     if (ccw == 0.0) {
       ccw = px * x2 + py * y2
       if (ccw > 0.0) {
@@ -209,8 +209,8 @@ export class Line2d {
     y2 -= y1
     px -= x1
     py -= y1
-    var dotprod = px * x2 + py * y2
-    var projlenSq
+    let dotprod = px * x2 + py * y2
+    let projlenSq
     if (dotprod <= 0.0) {
       projlenSq = 0.0
     } else {
@@ -223,7 +223,7 @@ export class Line2d {
         projlenSq = (dotprod * dotprod) / (x2 * x2 + y2 * y2)
       }
     }
-    var lenSq = px * px + py * py - projlenSq
+    let lenSq = px * px + py * py - projlenSq
     if (lenSq < 0) {
       lenSq = 0
     }
@@ -261,9 +261,9 @@ export class Line2d {
     y2 -= y1
     px -= x1
     py -= y1
-    var dotprod = px * x2 + py * y2
-    var projlenSq = (dotprod * dotprod) / (x2 * x2 + y2 * y2)
-    var lenSq = px * px + py * py - projlenSq
+    const dotprod = px * x2 + py * y2
+    const projlenSq = (dotprod * dotprod) / (x2 * x2 + y2 * y2)
+    let lenSq = px * px + py * py - projlenSq
     if (lenSq < 0) {
       lenSq = 0
     }
@@ -299,8 +299,8 @@ export class Rectangle2D {
   ) {}
 
   contains(x: number, y: number) {
-    var x0 = this.x
-    var y0 = this.y
+    const x0 = this.x
+    const y0 = this.y
     return x >= x0 && y >= y0 && x < x0 + this.width && y < y0 + this.height
   }
 

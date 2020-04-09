@@ -6,25 +6,19 @@ export class UnitGraphic implements IGraphic {
   group: SVG.G
   unitGroup: SVG.G
   bound: Point2d = Point2d.zero()
-  _rotate: number = 0
+  _rotate = 0
   statusText: SVG.Text
-  _width: number = 0
-  _height: number = 0
-  _scaleX: number = 0
-  _scaleY: number = 0
+  _width = 0
+  _height = 0
+  _scaleX = 0
+  _scaleY = 0
 
-  constructor(
-    readonly doc: SVG.Doc,
-    group: SVG.G,
-    readonly options: any,
-    onLoad: () => void
-  ) {
+  constructor(readonly doc: SVG.Doc, group: SVG.G, readonly options: any) {
     this.group = doc.group()
     this.unitGroup = doc.group()
     this.options = options
     group.add(this.group)
     const image = doc.image(options.path).size(options.width, options.height)
-    onLoad()
     this.group.add(image)
     this.statusText = this.doc
       .text('')
@@ -40,7 +34,7 @@ export class UnitGraphic implements IGraphic {
   }
 
   setPlayerColor(color: string) {
-    var circle = this.doc.circle(16).move(0, 0)
+    const circle = this.doc.circle(16).move(0, 0)
     circle.attr({
       fill: color || '#00f'
     })
@@ -54,7 +48,7 @@ export class UnitGraphic implements IGraphic {
   }
 
   flashing() {
-    var text = this.doc
+    const text = this.doc
       .text('Damage')
       .move(0, 0)
       .attr({
@@ -83,9 +77,6 @@ export class UnitGraphic implements IGraphic {
     this.group.mouseup(cb)
   }
 
-  getPos() {}
-  getWidth() {}
-
   setPos(x: number, y: number) {
     this.bound.x = x
     this.bound.y = y
@@ -106,7 +97,7 @@ export class UnitGraphic implements IGraphic {
   }
 
   applyDisplay() {
-    var myMatrix = new SVG.Matrix()
+    const myMatrix = new SVG.Matrix()
 
     this.group.matrix(
       myMatrix

@@ -33,15 +33,15 @@ export class MobileUnitContext {
 
 export class MobileUnit extends Unit {
   context: MobileUnitContext = new MobileUnitContext()
-  hp: number = 50
-  attack: number = 5
-  range: number = 3
-  speed: number = 4
+  hp = 50
+  attack = 5
+  range = 3
+  speed = 4
   nextDestination: any = null
   queue: any[] = []
-  count: number = 0
-  count2: number = 0
-  move_to_pos_loop: number = 0
+  count = 0
+  count2 = 0
+  moveToPosLoop = 0
   vec: Point2d = Point2d.zero()
   constructor(graphic: IGraphic, info: UnitInfo, map: IMap, player: Player) {
     super(graphic, info, map, player)
@@ -75,145 +75,152 @@ export class MobileUnit extends Unit {
   main() {
     switch (this.context.status) {
       case MobileUnitStatus.WAITING:
-        this.execute_waiting(event)
+        this.executeWaiting(event)
         break
       case MobileUnitStatus.MOVING_TO_POS:
-        this.execute_moving_to_pos(event)
+        this.executeMovingToPos(event)
         break
       case MobileUnitStatus.MOVING_TO_BUILDING:
-        this.execute_moving_to_building(event)
+        this.executeMovingToBuilding(event)
         break
       case MobileUnitStatus.MOVING_TO_RESOURCE:
-        this.execute_moving_to_resource(event)
+        this.executeMovingToResource(event)
         break
       case MobileUnitStatus.MOVING_TO_UNIT:
-        this.execute_moving_to_unit(event)
+        this.executeMovingToUnit(event)
         break
       case MobileUnitStatus.RETURNING:
-        this.execute_returning(event)
+        this.executeReturning(event)
         break
       case MobileUnitStatus.ATTACKING:
-        this.execute_attacking(event)
+        this.executeAttacking(event)
         break
       case MobileUnitStatus.GATHERING:
-        this.execute_gathering(event)
+        this.executeGathering(event)
         break
       case MobileUnitStatus.REPAIRING:
-        this.execute_repairing(event)
+        this.executeRepairing(event)
         break
       case MobileUnitStatus.BUILDING:
         break
       case MobileUnitStatus.DYING:
-        this.execute_dying(event)
+        this.executeDying(event)
         break
     }
   }
-  change_status(status) {
+
+  changeStatus(status) {
     this.context.status = status
     this.graphic.setStatus(this.context.status)
   }
 
-  execute_waiting(event) {
-    this.move_to_pos_loop = 0
+  executeWaiting(event) {
+    this.moveToPosLoop = 0
     this.count--
     if (this.count <= 0 && this.map.unitManager) {
       this.count = 60
-      var units = this.map.unitManager.getNearTrainableUnits(this, this.player)
+      const units = this.map.unitManager.getNearTrainableUnits(
+        this,
+        this.player
+      )
       if (units.length > 0) {
-        this.move_to_enemy(units[0])
+        this.moveToEnemy(units[0])
       }
     }
   }
 
-  execute_moving_to_pos(event) {
+  executeMovingToPos(event) {
     this.movingProcess()
     if (!this.context.dest) return
     const distance = Point2d.distance(this.pos, this.context.dest)
     if (distance < 80) {
       // Reach destination
-      this.change_status(MobileUnitStatus.WAITING)
+      this.changeStatus(MobileUnitStatus.WAITING)
     }
   }
-  execute_moving_to_building(event) {
+  executeMovingToBuilding(event) {
     this.movingProcess()
     const distance = Point2d.distance(this.pos, this.context.target?.pos)
     if (distance < 80) {
       // Reach destination
-      this.change_status(MobileUnitStatus.WAITING)
+      this.changeStatus(MobileUnitStatus.WAITING)
     }
   }
 
-  execute_moving_to_resource(event) {
+  executeMovingToResource(event) {
     this.movingProcess()
     const distance = Point2d.distance(this.pos, this.context.target?.pos)
     if (distance < 22) {
       this.count = 20
-      this.change_status(MobileUnitStatus.GATHERING)
+      this.changeStatus(MobileUnitStatus.GATHERING)
     }
   }
 
-  execute_moving_to_unit(event) {
+  executeMovingToUnit(event) {
     this.movingProcess()
-    var dis = Point2d.distance(this.pos, this.context.target?.pos)
+    const dis = Point2d.distance(this.pos, this.context.target?.pos)
     if (dis < 80) {
       this.count = 20
-      this.change_status(MobileUnitStatus.ATTACKING)
+      this.changeStatus(MobileUnitStatus.ATTACKING)
     }
   }
-  execute_returning(event) {
+  executeReturning(event) {
     this.movingProcess()
-    var dis = Point2d.distance(this.pos, this.context.target?.pos)
+    const dis = Point2d.distance(this.pos, this.context.target?.pos)
     if (dis < 80 && this.map.unitManager) {
       this.player.addResource('tree', this.context.gatheringAmount)
       this.context.gatheringAmount = 0
       this.count = 20
-      var nature = this.map.unitManager.getNearNature()
+      const nature = this.map.unitManager.getNearNature()
       this.context.target = nature[0]
-      this.move_to_target(this.context.target)
+      this.moveToTarget(this.context.target)
     }
   }
 
-  execute_attacking(event) {
-    var that = this
+  executeAttacking(event) {
     this.movingProcess()
-    var dis = Point2d.distance(this.pos, this.context.target?.pos)
+    const dis = Point2d.distance(this.pos, this.context.target?.pos)
     if (dis < 80) {
       this.count--
       if (this.count <= 0 && this.context.target instanceof MobileUnit) {
         this.count = 20
-        var attackedResult = this.context.target.attacked(this.attack)
+        const attackedResult = this.context.target.attacked(this.attack)
         if (attackedResult && !attackedResult.alive) {
           setTimeout(() => {
             if (this.context.target) {
               this.map.unitManager?.remove(this.context.target.id)
             }
-            this.change_status(MobileUnitStatus.WAITING)
+            this.changeStatus(MobileUnitStatus.WAITING)
           }, 20)
         }
       }
     } else {
-      this.move_to_target(this.context.target)
+      this.moveToTarget(this.context.target)
     }
   }
 
-  execute_gathering(event) {
+  executeGathering(event) {
     this.count--
     if (this.count <= 0 && this.context.target instanceof NatureUnit) {
       this.count = 20
       this.context.gatheringAmount += this.context.target.decrease(1)
       if (this.context.gatheringAmount >= 10 && this.map.unitManager) {
-        var buildings = this.map.unitManager.getNearBuilding()
-        this.return_to_target(buildings[0])
+        const buildings = this.map.unitManager.getNearBuilding()
+        this.returnToTarget(buildings[0])
       }
     }
   }
 
-  execute_repairing(event) {}
+  executeRepairing(event) {
+    throw new Error('method not implemented.')
+  }
 
-  execute_dying(event) {}
+  executeDying(event) {
+    throw new Error('method not implemented.')
+  }
 
-  random_move() {
-    var r = Math.random() * 20
+  randomMove() {
+    const r = Math.random() * 20
     this.pos = this.pos.add(new Point2d(r, 20 - r))
   }
 
@@ -227,19 +234,19 @@ export class MobileUnit extends Unit {
         if (this.count2 <= 0) {
           //moving_to_unitが続くとき
           //random move
-          this.random_move()
-          //this.change_status(MobileUnitContext.STATUS.WAITING);
+          this.randomMove()
+          //this.changeStatus(MobileUnitContext.STATUS.WAITING);
         } else if (this.count2 <= 0) {
           if (this.context.status == MobileUnitStatus.MOVING_TO_POS) {
-            this.move_to_pos_loop++
-            if (this.move_to_pos_loop <= 1) {
-              this.move_to_pos(this.context.dest)
+            this.moveToPosLoop++
+            if (this.moveToPosLoop <= 1) {
+              this.moveToPos(this.context.dest)
             } else {
               //moving_to_posが続くとき
-              this.change_status(MobileUnitStatus.WAITING)
+              this.changeStatus(MobileUnitStatus.WAITING)
             }
           } else {
-            this.move_to_target(this.context.target)
+            this.moveToTarget(this.context.target)
           }
         }
       } else {
@@ -253,20 +260,20 @@ export class MobileUnit extends Unit {
       this.count = 0
       this.nextDestination = this.queue.shift()
       if (this.nextDestination) {
-        var vec = this.nextDestination.sub(this.pos)
+        const vec = this.nextDestination.sub(this.pos)
         this.graphic.rotate((Math.atan(vec.y / vec.x) / Math.PI) * 180 + 90)
         this.vec = vec.times(1 / 50)
         this.count = 50
         this.count2 = 200
       } else {
         if (this.context.status == MobileUnitStatus.MOVING_TO_UNIT) {
-          this.move_to_target(this.context.target)
-          var dis = Point2d.distance(this.pos, this.context.target?.pos)
+          this.moveToTarget(this.context.target)
+          const dis = Point2d.distance(this.pos, this.context.target?.pos)
           if (dis >= 90 * 90) {
-            this.change_status(MobileUnitStatus.WAITING)
+            this.changeStatus(MobileUnitStatus.WAITING)
           }
         } else {
-          this.change_status(MobileUnitStatus.WAITING)
+          this.changeStatus(MobileUnitStatus.WAITING)
         }
       }
     }
@@ -276,27 +283,27 @@ export class MobileUnit extends Unit {
     this.queue.push(d)
   }
 
-  move_to_pos(pos) {
-    this.make_route(pos)
-    this.change_status(MobileUnitStatus.MOVING_TO_POS)
+  moveToPos(pos) {
+    this.makeRoute(pos)
+    this.changeStatus(MobileUnitStatus.MOVING_TO_POS)
     this.context.dest = new Point2d(pos.x, pos.y)
   }
 
-  move_to_enemy(unit) {
-    this.make_route(unit.pos)
-    this.change_status(MobileUnitStatus.MOVING_TO_UNIT)
+  moveToEnemy(unit) {
+    this.makeRoute(unit.pos)
+    this.changeStatus(MobileUnitStatus.MOVING_TO_UNIT)
     this.context.target = unit
   }
 
-  move_to_target(unit) {
+  moveToTarget(unit) {
     if (unit.info.type == 'nature') {
-      this.make_route(unit.pos)
-      this.change_status(MobileUnitStatus.MOVING_TO_RESOURCE)
+      this.makeRoute(unit.pos)
+      this.changeStatus(MobileUnitStatus.MOVING_TO_RESOURCE)
       this.context.target = unit
       return true
     } else if (unit.info.type == 'building') {
-      this.make_route(unit.pos)
-      this.change_status(MobileUnitStatus.MOVING_TO_BUILDING)
+      this.makeRoute(unit.pos)
+      this.changeStatus(MobileUnitStatus.MOVING_TO_BUILDING)
       this.context.target = unit
       return true
     } else {
@@ -304,17 +311,17 @@ export class MobileUnit extends Unit {
     }
   }
 
-  return_to_target(unit) {
+  returnToTarget(unit) {
     if (unit.info.type == 'building') {
-      this.make_route(unit.pos)
-      this.change_status(MobileUnitStatus.RETURNING)
+      this.makeRoute(unit.pos)
+      this.changeStatus(MobileUnitStatus.RETURNING)
       this.context.target = unit
     } else {
       throw new Error('invalid unit type')
     }
   }
 
-  make_route(x: number | Point2d, y?: number) {
+  makeRoute(x: number | Point2d, y?: number) {
     if (x instanceof Point2d) {
       y = x.y
       x = x.x
@@ -322,28 +329,27 @@ export class MobileUnit extends Unit {
     if (!y) {
       throw new Error('invalid y')
     }
-    var that = this
 
     //clear
     this.count = 0
     this.queue = []
     this.nextDestination = null
 
-    var startPos = this.tilePos
-    var endPos = new Point2d(Math.floor(x / 50), Math.floor(y / 50))
+    const startPos = this.tilePos
+    const endPos = new Point2d(Math.floor(x / 50), Math.floor(y / 50))
 
-    var collGraph = this.map.getCollGraph({
+    const collGraph = this.map.getCollGraph({
       except: [startPos, endPos]
     })
-    var graph = new astar.Graph(collGraph)
+    const graph = new astar.Graph(collGraph)
     //    logger('walkFrom', startPos.x, startPos.y)
     //  logger('walkTo', endPos.x, endPos.y)
-    var start = graph.grid[startPos.x][startPos.y]
-    var end = graph.grid[endPos.x][endPos.y]
-    var result = astar.astar.search(graph, start, end)
+    const start = graph.grid[startPos.x][startPos.y]
+    const end = graph.grid[endPos.x][endPos.y]
+    const result = astar.astar.search(graph, start, end)
 
-    result.map(function(gridNode) {
-      that.queue.push(new Point2d(gridNode.x * 50, gridNode.y * 50))
+    result.map(gridNode => {
+      this.queue.push(new Point2d(gridNode.x * 50, gridNode.y * 50))
     })
   }
 }
