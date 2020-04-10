@@ -6,7 +6,7 @@ import { UnitInfo } from './Unit'
 import { Point2d } from '@webrts/math2d'
 import { NatureUnit } from './NatureUnit'
 //var logger = require('../util/log').logger('BaseMobileUnit')
-import astar from '@webrts/algorithm'
+import { AStarFinder, Grid } from 'astar-typescript'
 
 enum MobileUnitStatus {
   WAITING = 'WAITING',
@@ -341,15 +341,13 @@ export class MobileUnit extends Unit {
     const collGraph = this.map.getCollGraph({
       except: [startPos, endPos]
     })
-    const graph = new astar.Graph(collGraph)
-    //    logger('walkFrom', startPos.x, startPos.y)
-    //  logger('walkTo', endPos.x, endPos.y)
-    const start = graph.grid[startPos.x][startPos.y]
-    const end = graph.grid[endPos.x][endPos.y]
-    const result = astar.astar.search(graph, start, end)
+    const astarFinder = new AStarFinder({
+      grid: new Grid({ matrix: collGraph })
+    })
+    const result = astarFinder.findPath(startPos, endPos)
 
     result.map(gridNode => {
-      this.queue.push(new Point2d(gridNode.x * 50, gridNode.y * 50))
+      this.queue.push(new Point2d(gridNode[0] * 50, gridNode[1] * 50))
     })
   }
 }

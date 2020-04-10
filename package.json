@@ -6,9 +6,11 @@
   "scripts": {
     "watch": "lerna run --parallel watch",
     "build": "lerna run build",
+    "clean": "lerna run clean",
+    "coverage": "jest --coverage",
+    "test": "npm run build && jest",
     "lint": "lerna run lint",
-    "publish": "npm run build && lerna publish",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "publish": "npm run build && lerna publish"
   },
   "author": "",
   "license": "MIT",

@@ -36,8 +36,8 @@
   },
   "dependencies": {
     "@svgdotjs/svg.js": "^3.0.16",
-    "@webrts/algorithm": "^0.0.1",
     "@webrts/math2d": "^0.0.1",
+    "astar-typescript": "^1.1.6",
     "svg.js": "^2.7.1",
     "uuid": "^7.0.2"
   }
