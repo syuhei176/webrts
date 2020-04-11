@@ -105,7 +105,7 @@ export class Map extends EventEmitter {
     const options = _options || {}
     const walkable = 0
     const notWalkable = 1
-    const graph: number[][] = new Array()
+    const graph: number[][] = []
     for (let i = 0; i < this.height; i++) {
       const wGraph: number[] = []
       for (let j = 0; j < this.width; j++) {

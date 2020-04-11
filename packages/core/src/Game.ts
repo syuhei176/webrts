@@ -166,8 +166,8 @@ function showDebugGrid(
   debugGrid: SVG.Rect[][]
 ) {
   const graph = map.getCollGraph(unitManager, { except: [] })
-  for (var i = 0; i < graph.length; i++) {
-    for (var j = 0; j < graph[i].length; j++) {
+  for (let i = 0; i < graph.length; i++) {
+    for (let j = 0; j < graph[i].length; j++) {
       if (!debugGrid[i]) {
         debugGrid[i] = []
       }
