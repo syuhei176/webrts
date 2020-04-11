@@ -14,6 +14,8 @@ import { Point2d } from '@webrts/math2d'
 
 export class Game {
   start(mainDom, requestAnimationFrame, unitInfo) {
+    const isDebugMode = false
+    const debugGrid: SVG.Rect[][] = []
     const platform = Platform()
     const controlPanel = new ControlPanel(mainDom)
     const menu = new Menu(mainDom)
@@ -42,26 +44,26 @@ export class Game {
     player1.on('update', function() {
       menu.update('tree', player1.getResource('tree'))
     })
-    unitManager.create('town', player1).setPos(400, 100)
-    unitManager.create('villager', player1).setPos(50, 50)
-    unitManager.create('villager', player1).setPos(100, 50)
-    unitManager.create('villager', player1).setPos(50, 100)
-    unitManager.create('villager', player1).setPos(100, 100)
-    unitManager.create('villager', player1).setPos(150, 70)
-    unitManager.create('villager', player2).setPos(425, 550)
-    unitManager.create('villager', player2).setPos(450, 525)
-    unitManager.create('villager', player2).setPos(450, 550)
-    unitManager.create('villager', player2).setPos(475, 525)
-    unitManager.create('villager', player2).setPos(475, 550)
-    unitManager.create('villager', player2).setPos(500, 525)
-    unitManager.create('villager', player2).setPos(500, 550)
-    unitManager.create('villager', player2).setPos(525, 525)
-    unitManager.create('villager', player2).setPos(525, 550)
-    unitManager.create('tree', playerGaia).setPos(150, 200)
-    unitManager.create('tree', playerGaia).setPos(150, 250)
-    unitManager.create('tree', playerGaia).setPos(150, 300)
+    unitManager.create('town', player1).setPos(200, 150)
+    unitManager.create('villager', player1).setPos(50, 75)
+    unitManager.create('villager', player1).setPos(100, 75)
+    unitManager.create('villager', player1).setPos(150, 75)
+    unitManager.create('villager', player1).setPos(200, 75)
+    unitManager.create('villager', player1).setPos(250, 75)
+
+    unitManager.create('villager', player2).setPos(575, 525)
+    unitManager.create('villager', player2).setPos(575, 550)
+    unitManager.create('villager', player2).setPos(600, 525)
+    unitManager.create('villager', player2).setPos(600, 550)
+    unitManager.create('villager', player2).setPos(625, 525)
+    unitManager.create('villager', player2).setPos(625, 550)
+    unitManager.create('villager', player2).setPos(650, 525)
+    unitManager.create('villager', player2).setPos(650, 550)
+    unitManager.create('tree', playerGaia).setPos(100, 200)
+    unitManager.create('tree', playerGaia).setPos(100, 250)
     unitManager.create('tree', playerGaia).setPos(200, 300)
-    unitManager.create('tree', playerGaia).setPos(300, 300)
+    unitManager.create('tree', playerGaia).setPos(200, 350)
+    unitManager.create('tree', playerGaia).setPos(250, 350)
 
     let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
@@ -109,9 +111,11 @@ export class Game {
     map.on('click', function(e) {
       console.log('click map')
       unitManager.select([])
+      /*
       if (player1.useResource('tree', 50)) {
         unitManager.create('town', player1).setPos(e.pos.x, e.pos.y)
       }
+      */
     })
 
     unitManager.on('click', e => {
@@ -132,7 +136,9 @@ export class Game {
       }
       units.forEach(unit => {
         if (unit instanceof BaseBuildingUnit) {
-          unit.addUnitCreationQueue()
+          if (player1.useResource('tree', 20)) {
+            unit.addUnitCreationQueue()
+          }
         }
       })
     }
@@ -141,32 +147,46 @@ export class Game {
 
     function gameLoop() {
       unitManager.main()
+      if (isDebugMode) {
+        showDebugGrid(doc, map, unitManager, debugGrid)
+      }
     }
     const recursiveAnim = function() {
       gameLoop()
       requestAnimationFrame(recursiveAnim)
     }
     requestAnimationFrame(recursiveAnim)
+  }
+}
 
-    /*
-    const graph = map.getCollGraph({ except: [] })
-    for(var i=0;i < graph.length;i++) {
-      for(var j=0;j < graph[i].length;j++) {
-        if(graph[i][j] == 0) {
-          snap.rect(i*50, j*50, 45, 45).attr({
-            stroke : '#a77',
-            fill : 'none',
-            strokeWidth : 3
-          });
-        }else if(graph[i][j] == 1) {
-          snap.rect(i*50, j*50, 45, 45).attr({
-            stroke : '#77b',
-            fill : 'none',
-            strokeWidth : 3
-          });
-        }
+function showDebugGrid(
+  doc: SVG.Doc,
+  map: Map,
+  unitManager: UnitManager,
+  debugGrid: SVG.Rect[][]
+) {
+  const graph = map.getCollGraph(unitManager, { except: [] })
+  for (var i = 0; i < graph.length; i++) {
+    for (var j = 0; j < graph[i].length; j++) {
+      if (!debugGrid[i]) {
+        debugGrid[i] = []
+      }
+      if (!debugGrid[i][j]) {
+        debugGrid[i][j] = doc.rect(45, 45).move(j * 50, i * 50)
+      }
+      if (graph[i][j] == 0) {
+        debugGrid[i][j].attr({
+          stroke: '#a77',
+          fill: 'none',
+          strokeWidth: 3
+        })
+      } else if (graph[i][j] == 1) {
+        debugGrid[i][j].attr({
+          stroke: '#77b',
+          fill: 'none',
+          strokeWidth: 3
+        })
       }
     }
-    */
   }
 }

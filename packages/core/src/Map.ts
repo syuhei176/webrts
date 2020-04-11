@@ -11,8 +11,8 @@ import { ClickHandler } from './types'
  * @name Map
  */
 export class Map extends EventEmitter {
-  width: number
-  height: number
+  public width: number
+  public height: number
   group: SVG.G
   coll: SVG.Rect
   // map position
@@ -103,11 +103,13 @@ export class Map extends EventEmitter {
 
   getCollGraph(unitManager: UnitManager, _options: { except: any }): any[][] {
     const options = _options || {}
-    const graph: any[][] = []
-    for (let i = 0; i < this.width; i++) {
+    const walkable = 0
+    const notWalkable = 1
+    const graph: number[][] = new Array()
+    for (let i = 0; i < this.height; i++) {
       const wGraph: number[] = []
-      for (let j = 0; j < this.height; j++) {
-        wGraph.push(1)
+      for (let j = 0; j < this.width; j++) {
+        wGraph.push(walkable)
       }
       graph.push(wGraph)
     }
@@ -133,13 +135,13 @@ export class Map extends EventEmitter {
       .forEach(function(p) {
         for (let i = p.x; i < p.x + p.w; i++) {
           for (let j = p.y; j < p.y + p.h; j++) {
-            graph[i][j] = 0
+            graph[j][i] = notWalkable
           }
         }
       })
     if (options.except) {
       options.except.forEach(e => {
-        graph[e.x][e.y] = 1
+        graph[e.y][e.x] = walkable
       })
     }
     return graph

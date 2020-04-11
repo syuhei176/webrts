@@ -42,8 +42,8 @@ RTS.prototype.start = function() {
     menuPanel.appendChild(stage[1])
     dom.appendChild(title)
     dom.appendChild(menuPanel)
-    stage[0].textContent = 'Stage 1'
-    stage[1].textContent = 'Stage 2'
+    stage[0].textContent = 'Tutorial'
+    stage[1].textContent = 'Free Mode'
     stage[0].addEventListener('click', function(e) {
       callback(0)
     })

@@ -334,7 +334,6 @@ export class MobileUnit extends Unit {
       throw new Error('invalid y')
     }
 
-    //clear
     this.count = 0
     this.queue = []
     this.nextDestination = null
@@ -346,7 +345,10 @@ export class MobileUnit extends Unit {
       except: [startPos, endPos]
     })
     const astarFinder = new AStarFinder({
-      grid: new Grid({ matrix: collGraph })
+      grid: {
+        matrix: collGraph
+      },
+      diagonalAllowed: false
     })
     const result = astarFinder.findPath(startPos, endPos)
 
