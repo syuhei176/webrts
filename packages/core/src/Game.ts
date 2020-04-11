@@ -44,7 +44,7 @@ export class Game {
     player1.on('update', function() {
       menu.update('tree', player1.getResource('tree'))
     })
-    unitManager.create('town', player1).setPos(200, 150)
+    unitManager.create('town', player1).setPos(250, 150)
     unitManager.create('villager', player1).setPos(50, 75)
     unitManager.create('villager', player1).setPos(100, 75)
     unitManager.create('villager', player1).setPos(150, 75)
@@ -64,6 +64,8 @@ export class Game {
     unitManager.create('tree', playerGaia).setPos(200, 300)
     unitManager.create('tree', playerGaia).setPos(200, 350)
     unitManager.create('tree', playerGaia).setPos(250, 350)
+    unitManager.create('tree', playerGaia).setPos(400, 350)
+    unitManager.create('tree', playerGaia).setPos(400, 300)
 
     let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
