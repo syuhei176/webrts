@@ -12,10 +12,12 @@
   "license": "MIT",
   "main": "lib/index.js",
   "directories": {
+    "src": "src",
     "lib": "lib",
     "test": "__tests__"
   },
   "files": [
+    "src",
     "lib"
   ],
   "publishConfig": {
