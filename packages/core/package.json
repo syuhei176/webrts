@@ -1,6 +1,6 @@
 {
   "name": "@webrts/core",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "core modules for RTS",
   "author": {
     "name": "Cryptoeconomics Lab",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@svgdotjs/svg.js": "^3.0.16",
-    "@webrts/math2d": "^0.0.2",
+    "@webrts/math2d": "^0.0.3",
     "astar-typescript": "^1.1.6",
     "svg.js": "^2.7.1",
     "uuid": "^7.0.2"
