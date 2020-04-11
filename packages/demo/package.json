@@ -1,6 +1,6 @@
 {
   "name": "@webrts/demo",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "demo",
   "author": {
     "name": "Shuhei Hiya",
@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@cryptoeconomicslab/primitives": "0.0.6",
-    "@webrts/core": "^0.0.3",
+    "@webrts/core": "^0.0.4",
     "parcel-bundler": "^1.12.4"
   },
   "devDependencies": {
