@@ -29,11 +29,19 @@ RTS.prototype.start = function() {
   })
 
   function select_menu(dom, callback) {
-    var stage = []
+    const stage = []
+    const title = document.createElement('div')
+    const menuPanel = document.createElement('div')
+    title.className = 'title'
+    title.textContent = 'WebRTS(DEMO)'
+    dom.className = 'title-menu-wrapper'
+    menuPanel.className = 'title-menu-panel'
     stage[0] = document.createElement('div')
     stage[1] = document.createElement('div')
-    dom.appendChild(stage[0])
-    dom.appendChild(stage[1])
+    menuPanel.appendChild(stage[0])
+    menuPanel.appendChild(stage[1])
+    dom.appendChild(title)
+    dom.appendChild(menuPanel)
     stage[0].textContent = 'Stage 1'
     stage[1].textContent = 'Stage 2'
     stage[0].addEventListener('click', function(e) {

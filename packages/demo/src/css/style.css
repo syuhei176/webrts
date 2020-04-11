@@ -1,144 +1,155 @@
-html, body{
-	margin: 0;
-	padding: 0;
-	height: 100%;
-	width: 100%;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  color: #fff;
+  background-color: #0caa14;
 }
 
 #debug {
-	position: absolute;
-	top: 20px;
-	left: 20px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.title-menu-wrapper {
+  width: 800px;
+  margin: auto;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 36px;
+  width: 240px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.title-menu-panel {
+  font-weight: bold;
+  font-size: 28px;
+  width: 200px;
+  margin: auto;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
 }
 
 .menu-panel-wrapper {
-	position: fixed;
-	top: 0px;
-	margin: auto;
-	padding-left: 12px;
-	color: #fff;
-	background-color: #303030;
-	opacity: 0.7;
-	width: 100%;
-	height: 30px;
-	z-index: 100;
+  position: fixed;
+  top: 0px;
+  margin: auto;
+  padding-left: 12px;
+  color: #fff;
+  background-color: #303030;
+  opacity: 0.7;
+  width: 100%;
+  height: 30px;
+  z-index: 100;
 }
 
-
 .menu-item {
-	width: 120px;
-	padding: 2px;
-	background-color: #505050;
+  width: 120px;
+  padding: 2px;
+  background-color: #505050;
 }
 
 .control-panel-wrapper {
-	position: fixed;
-	bottom: 0px;
-	margin: auto; 
-	width: 100%;
+  position: fixed;
+  bottom: 0px;
+  margin: auto;
+  width: 100%;
 }
 
 .control-panel-wrapper:after {
-	clear: fix;
+  clear: fix;
 }
 
-.map-panel-wrapper{
-	margin-left: 50px;
-	width: 150px;
-	height: 150px;
-	color: #fff;
-	background-color: #422120;
-	opacity: 0.7;
-	float: left;
-	border: 5px solid #321110;
+.map-panel-wrapper {
+  margin-left: 50px;
+  width: 150px;
+  height: 150px;
+  color: #fff;
+  background-color: #422120;
+  opacity: 0.7;
+  float: left;
+  border: 5px solid #321110;
 }
 
-.info-panel-wrapper{
-	width: 180px;
-	height: 150px;
-	color: #fff;
-	background-color: #422120;
-	opacity: 0.7;
-	float: left;
-	border: 5px solid #321110;
+.info-panel-wrapper {
+  width: 180px;
+  height: 150px;
+  color: #fff;
+  background-color: #422120;
+  opacity: 0.7;
+  float: left;
+  border: 5px solid #321110;
 }
 
-.pallet-panel-wrapper{
-	width: 250px;
-	height: 120px;
-	margin-top: 30px;
-	color: #fff;
-	background-color: #422120;
-	opacity: 0.7;
-	float: left;
-	border: 5px solid #321110;
+.pallet-panel-wrapper {
+  width: 250px;
+  height: 120px;
+  margin-top: 30px;
+  color: #fff;
+  background-color: #422120;
+  opacity: 0.7;
+  float: left;
+  border: 5px solid #321110;
 }
 
 /*Loading Animation*/
 
-.loading-animation
-{
-    width:100px;
-    margin:auto;
+.loading-animation {
+  width: 100px;
+  margin: auto;
 }
-.loading-animation .balls div
-{
-
-    background-color:#005AA2;
-    width:20px;
-    height:20px;
-    border-radius:15px;
-    display:inline-block;
-    margin:-2px;
-    padding:0;
-
+.loading-animation .balls div {
+  background-color: #005aa2;
+  width: 20px;
+  height: 20px;
+  border-radius: 15px;
+  display: inline-block;
+  margin: -2px;
+  padding: 0;
 }
 
-.loading-animation .balls div:first-child
-{
-    -webkit-animation: first-ball ease-in-out 1s infinite;
-    animation: first-ball ease-in-out 1s infinite;
+.loading-animation .balls div:first-child {
+  -webkit-animation: first-ball ease-in-out 1s infinite;
+  animation: first-ball ease-in-out 1s infinite;
 }
 
-@keyframes first-ball
-{
-    15%
-    {
-        transform: rotate(36deg) translateX(-40px);
-    }
-    25%
-    {
-        transform: rotate(45deg) translateX(-50px);
-    }
-    50%
-    {
-        transform: rotate(0deg) translateX(0px);
-    }
+@keyframes first-ball {
+  15% {
+    transform: rotate(36deg) translateX(-40px);
+  }
+  25% {
+    transform: rotate(45deg) translateX(-50px);
+  }
+  50% {
+    transform: rotate(0deg) translateX(0px);
+  }
 }
 
-.loading-animation .balls div:last-child
-{
-    -webkit-animation: last-ball ease-in-out 1s infinite;
-    -webkit-animation-delay: 0.5s;
-    animation: last-ball ease-in-out 1s infinite;
-    animation-delay: 0.5s;
+.loading-animation .balls div:last-child {
+  -webkit-animation: last-ball ease-in-out 1s infinite;
+  -webkit-animation-delay: 0.5s;
+  animation: last-ball ease-in-out 1s infinite;
+  animation-delay: 0.5s;
 }
 
-@keyframes last-ball
-{
-    15%
-    {
-        transform: rotate(-36deg) translateX(40px);
-    }
-    25%
-    {
-        transform: rotate(-45deg) translateX(50px);
-    }
-    50%
-    {
-        transform: rotate(0deg) translateX(0px);
-    }
+@keyframes last-ball {
+  15% {
+    transform: rotate(-36deg) translateX(40px);
+  }
+  25% {
+    transform: rotate(-45deg) translateX(50px);
+  }
+  50% {
+    transform: rotate(0deg) translateX(0px);
+  }
 }
 
 /*End of Loading Animation*/
-
