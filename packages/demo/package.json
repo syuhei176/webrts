@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@cryptoeconomicslab/primitives": "0.0.6",
-    "@flowerlab/core": "0.0.4",
     "@webrts/core": "^0.0.2",
     "parcel-bundler": "^1.12.4"
   },
