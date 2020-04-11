@@ -30,5 +30,5 @@
     "clean": "rm -rf lib docs",
     "watch": "tsc --build --watch"
   },
-  "gitHead": "ceeeebcd2f4ec6f1808b2dc08ecb590490052de5"
+  "gitHead": "9420bc5476b8f5f844e4b895524910f716f8b529"
 }
