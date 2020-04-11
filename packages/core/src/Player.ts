@@ -43,6 +43,7 @@ export class Player extends EventEmitter {
   useResource(type: string, amount) {
     if (this.resources[type] >= amount) {
       this.resources[type] -= amount
+      this.emit('update', this)
       return true
     }
     return false
