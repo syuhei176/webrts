@@ -1,6 +1,6 @@
 {
   "name": "@webrts/math2d",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "math2d",
   "author": {
     "name": "Cryptoeconomics Lab",
@@ -30,7 +30,5 @@
     "clean": "rm -rf lib docs",
     "watch": "tsc --build --watch"
   },
-  "gitHead": "ceeeebcd2f4ec6f1808b2dc08ecb590490052de5",
-  "devDependencies": {},
-  "dependencies": {}
+  "gitHead": "ceeeebcd2f4ec6f1808b2dc08ecb590490052de5"
 }
