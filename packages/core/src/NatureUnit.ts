@@ -3,6 +3,7 @@ import { IGraphic } from './interfaces/IGraphic'
 import { IMap } from './interfaces/IMap'
 import { Player } from './Player'
 import { UnitInfo } from './Unit'
+import { UnitManager } from './UnitManager'
 
 export enum NatureUnitStatus {
   BUILDING,
@@ -10,8 +11,14 @@ export enum NatureUnitStatus {
 }
 export class NatureUnit extends Unit {
   amount: number
-  constructor(graphic: IGraphic, info: UnitInfo, map: IMap, player: Player) {
-    super(graphic, info, map, player)
+  constructor(
+    graphic: IGraphic,
+    info: UnitInfo,
+    map: IMap,
+    unitManager: UnitManager,
+    player: Player
+  ) {
+    super(graphic, info, map, unitManager, player)
     this.amount = 100
   }
 
@@ -20,7 +27,7 @@ export class NatureUnit extends Unit {
     if (this.amount < 0) {
       const left = -1 * this.amount
       this.amount = 0
-      this.map.unitManager?.remove(this.id)
+      this.unitManager.remove(this.id)
       return amount - left
     } else {
       return amount

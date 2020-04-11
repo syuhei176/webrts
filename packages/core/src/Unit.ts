@@ -5,6 +5,7 @@ import { v1 } from 'uuid'
 import { IGraphic } from './interfaces/IGraphic'
 import { Point2d } from '@webrts/math2d'
 import { EventEmitter } from 'events'
+import { UnitManager } from './UnitManager'
 
 export interface UnitInfo {
   size: number[] | number
@@ -18,6 +19,7 @@ export abstract class Unit extends EventEmitter {
     readonly graphic: IGraphic,
     readonly info: UnitInfo,
     readonly map: IMap,
+    readonly unitManager: UnitManager,
     readonly player: Player
   ) {
     super()

@@ -64,11 +64,17 @@ export class UnitManager extends EventEmitter {
     })
     let person: Unit
     if (metaUnit.unitinfo.type == 'nature') {
-      person = new NatureUnit(ug, metaUnit.unitinfo, this.map, player)
+      person = new NatureUnit(ug, metaUnit.unitinfo, this.map, this, player)
     } else if (metaUnit.unitinfo.type == 'building') {
-      person = new BaseBuildingUnit(ug, metaUnit.unitinfo, this.map, player)
+      person = new BaseBuildingUnit(
+        ug,
+        metaUnit.unitinfo,
+        this.map,
+        this,
+        player
+      )
     } else {
-      person = new MobileUnit(ug, metaUnit.unitinfo, this.map, player)
+      person = new MobileUnit(ug, metaUnit.unitinfo, this.map, this, player)
     }
     person.on('click', e => {
       if (this.clickHandler) {
@@ -129,6 +135,27 @@ export class UnitManager extends EventEmitter {
         const dis = Point2d.distance(selfUnit.pos, unit.pos)
         return dis < 18 * 18
       })
+  }
+
+  hit(targetUnit: Unit) {
+    return (
+      this.getUnits()
+        .filter(unit => {
+          return unit.id != targetUnit.id
+        })
+        .map(unit => {
+          return unit.collBound()
+        })
+        .filter(function(bound) {
+          const targetBound = targetUnit.collBound()
+          return (
+            bound.x < targetBound.x + targetBound.w &&
+            targetBound.x < bound.x + bound.w &&
+            bound.y < targetBound.y + targetBound.h &&
+            targetBound.y < bound.y + bound.h
+          )
+        }).length > 0
+    )
   }
 
   select(target: Unit[]) {

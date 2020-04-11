@@ -8,6 +8,9 @@ import { Preloader } from './ui/preloader'
 import { UnitManager } from './UnitManager'
 import { Player, PlayerType } from './Player'
 import { Unit } from './Unit'
+import { BaseBuildingUnit } from './Building'
+import { MobileUnit } from './MobileUnit'
+import { Point2d } from '@webrts/math2d'
 
 export class Game {
   start(mainDom, requestAnimationFrame, unitInfo) {
@@ -29,7 +32,8 @@ export class Game {
     unitManager.load(unitInfo)
     //map.generate(0);
 
-    map.setUnitManager(unitManager)
+    unitManager.setMap(map)
+    map.appendGraphicElement(unitManager.group)
     const player1 = new Player(PlayerType.HUMAN)
     const player2 = new Player(PlayerType.ENEMY)
     const playerGaia = new Player(PlayerType.GAIA)
@@ -63,53 +67,75 @@ export class Game {
     unitManager.on('target', function(e) {
       if (selected) {
         if (selected instanceof Array) {
-          selected.forEach(function(s) {
+          selected.forEach(s => {
             selectTarget(s, e.unit)
           })
         } else {
           selectTarget(selected, e.unit)
         }
       }
-      function selectTarget(selected, target) {
+      function selectTarget(selected: Unit, target) {
+        if (!(selected instanceof MobileUnit)) {
+          return
+        }
         if (target.player && target.player.type === PlayerType.ENEMY) {
-          selected.move_to_enemy(target)
+          selected.moveToEnemy(target)
         } else {
-          selected.move_to_target(target)
+          selected.moveToTarget(target)
         }
       }
     })
     map.on('target', function(e) {
+      unitManager.select([])
       if (selected) {
         if (selected instanceof Array) {
-          selected.forEach(function(s) {
+          selected.forEach(s => {
             moveToPos(s, e.pos)
           })
         } else {
           moveToPos(selected, e.pos)
         }
       }
-      function moveToPos(selected, pos) {
-        if (selected.player && selected.player.type == PlayerType.HUMAN) {
-          selected.moveToPos(e.pos)
+      function moveToPos(selected: Unit, pos: Point2d) {
+        if (
+          selected instanceof MobileUnit &&
+          selected.player &&
+          selected.player.type == PlayerType.HUMAN
+        ) {
+          selected.moveToPos(pos)
         }
       }
     })
     map.on('click', function(e) {
+      console.log('click map')
+      unitManager.select([])
       if (player1.useResource('tree', 50)) {
         unitManager.create('town', player1).setPos(e.pos.x, e.pos.y)
       }
     })
-    map.on('selected', function(units) {
+
+    unitManager.on('click', e => {
+      selectUnits([e.unit])
+    })
+
+    map.on('selected', (rectangleSelector: RectangleSelector) => {
+      const units = unitManager.getTrainableUnits().filter(unit => {
+        return rectangleSelector.isContained(map.global2screen(unit.pos))
+      })
+      unitManager.select(units)
+      selectUnits(units)
+    })
+    function selectUnits(units: Unit[]) {
       selected = units
       if (Array.isArray(selected) && selected.length > 0) {
         controlPanel.setTarget(selected[0])
       }
-      units.forEach(function(unit) {
-        if (unit.info.type == 'building') {
+      units.forEach(unit => {
+        if (unit instanceof BaseBuildingUnit) {
           unit.addUnitCreationQueue()
         }
       })
-    })
+    }
     platform.setupMap(map)
     platform.setupUnitManager(unitManager)
 
@@ -122,8 +148,8 @@ export class Game {
     }
     requestAnimationFrame(recursiveAnim)
 
-    const graph = map.getCollGraph({ except: [] })
     /*
+    const graph = map.getCollGraph({ except: [] })
     for(var i=0;i < graph.length;i++) {
       for(var j=0;j < graph[i].length;j++) {
         if(graph[i][j] == 0) {
