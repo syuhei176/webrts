@@ -46,25 +46,3 @@ jobs:
         uses: coverallsapp/github-action@v1.0.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 10.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 10.x
-      - name: build
-        run: |
-          npm install -g lerna
-          npm install --frozen-lockfile
-          lerna bootstrap
-          lerna run build
-      - name: Publish
-        uses: netlify/actions/cli@master
-        with:
-          args: deploy --dir=packages/demo/build
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
