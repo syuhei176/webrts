@@ -7,12 +7,15 @@ import { RectangleSelector } from './ui/RectangleSelector'
 import { Draggable } from './Draggable'
 import { ClickHandler } from './types'
 
+/**
+ * @name Map
+ */
 export class Map extends EventEmitter {
   width: number
   height: number
-  unitManager: UnitManager | null
   group: SVG.G
   coll: SVG.Rect
+  // map position
   pos: Point2d = Point2d.zero()
   clickHandler: null | ClickHandler = null
 
@@ -25,7 +28,6 @@ export class Map extends EventEmitter {
     this.height = 80
     const width = 2000
     const height = 2000
-    this.unitManager = null
     this.group = this.doc.group()
     this.coll = this.doc.rect(width, height).move(0, 0)
     this.group.add(this.coll)
@@ -42,13 +44,7 @@ export class Map extends EventEmitter {
       },
       () => {
         rectangleSelector.end()
-        if (this.unitManager) {
-          const units = this.unitManager.getTrainableUnits().filter(unit => {
-            return rectangleSelector.isContained(this.global2screen(unit.pos))
-          })
-          this.unitManager.select(units)
-          this.emit('selected', units)
-        }
+        this.emit('selected', rectangleSelector)
       }
     )
 
@@ -61,13 +57,11 @@ export class Map extends EventEmitter {
             this.emit('click', {
               pos: pos
             })
-            this.unitManager?.select([])
           },
           () => {
             this.emit('target', {
               pos: pos
             })
-            this.unitManager?.select([])
           }
         )
       }
@@ -81,13 +75,8 @@ export class Map extends EventEmitter {
     )
   }
 
-  setUnitManager(unitManager: UnitManager) {
-    this.unitManager = unitManager
-    this.unitManager.setMap(this)
-    this.group.add(this.unitManager.group)
-    this.unitManager.on('click', e => {
-      this.emit('selected', [e.unit])
-    })
+  appendGraphicElement(g: SVG.G) {
+    this.group.add(g)
   }
 
   setClickHandler(clickHandler) {
@@ -112,35 +101,7 @@ export class Map extends EventEmitter {
     this.group.matrix(myMatrix.translate(this.pos.x, this.pos.y))
   }
 
-  hit(targetUnit: Unit) {
-    if (!this.unitManager) {
-      throw new Error('unitManager must not be null')
-    }
-    return (
-      this.unitManager
-        .getUnits()
-        .filter(function(unit) {
-          return unit.id != targetUnit.id
-        })
-        .map(function(u) {
-          return u.collBound()
-        })
-        .filter(function(bound) {
-          const targetBound = targetUnit.collBound()
-          return (
-            bound.x < targetBound.x + targetBound.w &&
-            targetBound.x < bound.x + bound.w &&
-            bound.y < targetBound.y + targetBound.h &&
-            targetBound.y < bound.y + bound.h
-          )
-        }).length > 0
-    )
-  }
-
-  getCollGraph(_options: { except: any }): any[][] {
-    if (!this.unitManager) {
-      throw new Error('unitManager must not be null')
-    }
+  getCollGraph(unitManager: UnitManager, _options: { except: any }): any[][] {
     const options = _options || {}
     const graph: any[][] = []
     for (let i = 0; i < this.width; i++) {
@@ -150,7 +111,7 @@ export class Map extends EventEmitter {
       }
       graph.push(wGraph)
     }
-    this.unitManager
+    unitManager
       .getCollUnits()
       .map(function(u: Unit) {
         let w: number

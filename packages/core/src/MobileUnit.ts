@@ -7,6 +7,7 @@ import { Point2d } from '@webrts/math2d'
 import { NatureUnit } from './NatureUnit'
 //var logger = require('../util/log').logger('BaseMobileUnit')
 import { AStarFinder, Grid } from 'astar-typescript'
+import { UnitManager } from './UnitManager'
 
 enum MobileUnitStatus {
   WAITING = 'WAITING',
@@ -43,8 +44,14 @@ export class MobileUnit extends Unit {
   count2 = 0
   moveToPosLoop = 0
   vec: Point2d = Point2d.zero()
-  constructor(graphic: IGraphic, info: UnitInfo, map: IMap, player: Player) {
-    super(graphic, info, map, player)
+  constructor(
+    graphic: IGraphic,
+    info: UnitInfo,
+    map: IMap,
+    unitManager: UnitManager,
+    player: Player
+  ) {
+    super(graphic, info, map, unitManager, player)
   }
 
   getInfo() {
@@ -117,12 +124,9 @@ export class MobileUnit extends Unit {
   executeWaiting(event) {
     this.moveToPosLoop = 0
     this.count--
-    if (this.count <= 0 && this.map.unitManager) {
+    if (this.count <= 0) {
       this.count = 60
-      const units = this.map.unitManager.getNearTrainableUnits(
-        this,
-        this.player
-      )
+      const units = this.unitManager.getNearTrainableUnits(this, this.player)
       if (units.length > 0) {
         this.moveToEnemy(units[0])
       }
@@ -167,11 +171,11 @@ export class MobileUnit extends Unit {
   executeReturning(event) {
     this.movingProcess()
     const dis = Point2d.distance(this.pos, this.context.target?.pos)
-    if (dis < 80 && this.map.unitManager) {
+    if (dis < 80) {
       this.player.addResource('tree', this.context.gatheringAmount)
       this.context.gatheringAmount = 0
       this.count = 20
-      const nature = this.map.unitManager.getNearNature()
+      const nature = this.unitManager.getNearNature()
       this.context.target = nature[0]
       this.moveToTarget(this.context.target)
     }
@@ -188,7 +192,7 @@ export class MobileUnit extends Unit {
         if (attackedResult && !attackedResult.alive) {
           setTimeout(() => {
             if (this.context.target) {
-              this.map.unitManager?.remove(this.context.target.id)
+              this.unitManager.remove(this.context.target.id)
             }
             this.changeStatus(MobileUnitStatus.WAITING)
           }, 20)
@@ -204,8 +208,8 @@ export class MobileUnit extends Unit {
     if (this.count <= 0 && this.context.target instanceof NatureUnit) {
       this.count = 20
       this.context.gatheringAmount += this.context.target.decrease(1)
-      if (this.context.gatheringAmount >= 10 && this.map.unitManager) {
-        const buildings = this.map.unitManager.getNearBuilding()
+      if (this.context.gatheringAmount >= 10) {
+        const buildings = this.unitManager.getNearBuilding()
         this.returnToTarget(buildings[0])
       }
     }
@@ -228,7 +232,7 @@ export class MobileUnit extends Unit {
     if (this.nextDestination) {
       //次の目的地がある場合
       this.pos = this.pos.add(this.vec)
-      if (this.map.hit(this)) {
+      if (this.unitManager.hit(this)) {
         this.pos = this.pos.sub(this.vec)
         this.count2--
         if (this.count2 <= 0) {
@@ -338,7 +342,7 @@ export class MobileUnit extends Unit {
     const startPos = this.tilePos
     const endPos = new Point2d(Math.floor(x / 50), Math.floor(y / 50))
 
-    const collGraph = this.map.getCollGraph({
+    const collGraph = this.map.getCollGraph(this.unitManager, {
       except: [startPos, endPos]
     })
     const astarFinder = new AStarFinder({
