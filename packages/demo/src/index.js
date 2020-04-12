@@ -14,7 +14,7 @@ RTS.prototype.start = function() {
 
     var selectMenuDom = document.createElement('div')
     mainDom.appendChild(selectMenuDom)
-    select_menu(selectMenuDom, function(stage) {
+    select_menu(selectMenuDom, function(addr, isInitiator) {
       mainDom.removeChild(selectMenuDom)
       var gameDom = document.createElement('div')
       mainDom.appendChild(gameDom)
@@ -24,7 +24,7 @@ RTS.prototype.start = function() {
       unitInfo[2].graphic.path = town
       unitInfo[3].graphic.path = tree
       unitInfo[4].graphic.path = fruits
-      game.start(gameDom, requestAnimationFrame, unitInfo)
+      game.start(gameDom, requestAnimationFrame, unitInfo, addr, isInitiator)
     })
   })
 
@@ -40,15 +40,26 @@ RTS.prototype.start = function() {
     stage[1] = document.createElement('div')
     menuPanel.appendChild(stage[0])
     menuPanel.appendChild(stage[1])
+    const addr = document.createElement('input')
+    addr.type = 'text'
+    menuPanel.appendChild(addr)
+    const initiator = document.createElement('input')
+    initiator.type = 'checkbox'
+    menuPanel.appendChild(initiator)
     dom.appendChild(title)
     dom.appendChild(menuPanel)
     stage[0].textContent = 'Tutorial'
     stage[1].textContent = 'Free Mode'
     stage[0].addEventListener('click', function(e) {
-      callback(0)
+      console.log(addr.value, initiator.checked)
+      if (addr.value) {
+        callback(addr.value, initiator.checked)
+      }
     })
     stage[1].addEventListener('click', function(e) {
-      callback(1)
+      if (addr.value) {
+        callback(addr.value)
+      }
     })
   }
 }
