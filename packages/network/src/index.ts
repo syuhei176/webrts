@@ -15,7 +15,7 @@ export class NetworkManager extends EventEmitter {
   constructor(readonly options: NetworkManagerOptions) {
     super()
     this.id = Math.random().toString()
-    this.socket = SocketIOClient('http://localhost:3000')
+    this.socket = SocketIOClient('https://webrts-server.herokuapp.com')
   }
 
   start() {
@@ -39,7 +39,9 @@ export class NetworkManager extends EventEmitter {
         this.peer.signal(m.signalData)
       }
     })
-    this.socket.on('disconnect', () => {})
+    this.socket.on('disconnect', () => {
+      console.log('disconnected')
+    })
   }
 
   private setUpPeer(isInitiator: boolean) {
@@ -55,7 +57,9 @@ export class NetworkManager extends EventEmitter {
       })
     })
 
-    this.peer.on('connect', () => {})
+    this.peer.on('connect', () => {
+      console.log('connected to peer')
+    })
 
     this.peer.on('data', data => {
       this.emit('message', { message: data.toString() })
