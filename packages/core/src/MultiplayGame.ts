@@ -11,10 +11,18 @@ import { Unit } from './Unit'
 import { BaseBuildingUnit } from './Building'
 import { MobileUnit } from './MobileUnit'
 import { Point2d } from '@webrts/math2d'
+import { NetworkManager } from '@webrts/network'
 import { showDebugGrid } from './debug'
 
-export class Game {
-  start(mainDom, requestAnimationFrame, unitInfo) {
+export class MultiplayGame {
+  start(
+    mainDom,
+    requestAnimationFrame,
+    unitInfo,
+    mode: string,
+    roomName: string,
+    isNewRoom: boolean
+  ) {
     const isDebugMode = false
     const debugGrid: SVG.Rect[][] = []
     const platform = Platform()
@@ -34,6 +42,12 @@ export class Game {
     const unitManager = new UnitManager(doc)
     unitManager.load(unitInfo)
     //map.generate(0);
+    console.log('addr', roomName)
+    const networkManager = new NetworkManager({
+      room: roomName,
+      createNew: isNewRoom
+    })
+    networkManager.start()
 
     unitManager.setMap(map)
     map.appendGraphicElement(unitManager.group)
@@ -90,6 +104,14 @@ export class Game {
         }
       }
     })
+    networkManager.on('message', e => {
+      console.log(e)
+      const command = JSON.parse(e.message)
+      const unit = unitManager.getUnit(command.id)
+      if (unit instanceof MobileUnit) {
+        unit.moveToPos(new Point2d(command.pos.x, command.pos.y))
+      }
+    })
     map.on('target', function(e) {
       unitManager.select([])
       if (selected) {
@@ -108,6 +130,12 @@ export class Game {
           selected.player.type == PlayerType.HUMAN
         ) {
           selected.moveToPos(pos)
+          networkManager.sendMessage(
+            JSON.stringify({
+              id: selected.id,
+              pos: pos
+            })
+          )
         }
       }
     })
