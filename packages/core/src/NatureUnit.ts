@@ -12,13 +12,14 @@ export enum NatureUnitStatus {
 export class NatureUnit extends Unit {
   amount: number
   constructor(
+    id: string,
     graphic: IGraphic,
     info: UnitInfo,
     map: IMap,
     unitManager: UnitManager,
     player: Player
   ) {
-    super(graphic, info, map, unitManager, player)
+    super(id, graphic, info, map, unitManager, player)
     this.amount = 100
   }
 

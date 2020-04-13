@@ -60,6 +60,7 @@ export class NetworkManager extends EventEmitter {
 
     this.peer.on('connect', () => {
       console.log('connected to peer')
+      this.emit('connected')
     })
 
     this.peer.on('data', data => {

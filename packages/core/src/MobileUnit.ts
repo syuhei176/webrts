@@ -45,13 +45,14 @@ export class MobileUnit extends Unit {
   moveToPosLoop = 0
   vec: Point2d = Point2d.zero()
   constructor(
+    id: string,
     graphic: IGraphic,
     info: UnitInfo,
     map: IMap,
     unitManager: UnitManager,
     player: Player
   ) {
-    super(graphic, info, map, unitManager, player)
+    super(id, graphic, info, map, unitManager, player)
   }
 
   getInfo() {

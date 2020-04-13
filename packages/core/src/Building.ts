@@ -5,6 +5,7 @@ import { UnitInfo, Unit } from './Unit'
 import { Point2d } from '@webrts/math2d'
 import { MobileUnit } from './MobileUnit'
 import { UnitManager } from './UnitManager'
+import { v1 } from 'uuid'
 
 enum BuildingStatus {
   WAITING,
@@ -18,13 +19,14 @@ export class BaseBuildingUnit extends Unit {
   processingJob: any
 
   constructor(
+    id: string,
     graphic: IGraphic,
     info: UnitInfo,
     map: IMap,
     unitManager: UnitManager,
     player: Player
   ) {
-    super(graphic, info, map, unitManager, player)
+    super(id, graphic, info, map, unitManager, player)
     this.queue = []
     this.processingJob = null
     this.count = 0
@@ -44,6 +46,7 @@ export class BaseBuildingUnit extends Unit {
         if (this.count <= 0) {
           if (this.processingJob) {
             const unit = this.unitManager.create(
+              v1(),
               'villager',
               this.player
             ) as MobileUnit

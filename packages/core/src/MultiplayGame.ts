@@ -13,8 +13,10 @@ import { MobileUnit } from './MobileUnit'
 import { Point2d } from '@webrts/math2d'
 import { NetworkManager } from '@webrts/network'
 import { showDebugGrid } from './debug'
+import { v1 } from 'uuid'
 
 export class MultiplayGame {
+  networkManager: NetworkManager | null = null
   start(
     mainDom,
     requestAnimationFrame,
@@ -23,6 +25,27 @@ export class MultiplayGame {
     isNewRoom: boolean,
     gameServerEndpoint: string
   ) {
+    this.networkManager = new NetworkManager({
+      room: roomName,
+      createNew: isNewRoom,
+      endpoint: gameServerEndpoint
+    })
+    this.networkManager.on('connected', () => {
+      this.initUnitManager(mainDom, requestAnimationFrame, unitInfo, isNewRoom)
+    })
+    this.networkManager.start()
+  }
+
+  initUnitManager(
+    mainDom: any,
+    requestAnimationFrame: any,
+    unitInfo: any,
+    isNewRoom: boolean
+  ) {
+    if (!this.networkManager) {
+      throw new Error('n.etworkManager must not be null')
+    }
+
     const isDebugMode = false
     const debugGrid: SVG.Rect[][] = []
     const platform = Platform()
@@ -42,14 +65,6 @@ export class MultiplayGame {
     const unitManager = new UnitManager(doc)
     unitManager.load(unitInfo)
     //map.generate(0);
-    console.log('addr', roomName)
-    const networkManager = new NetworkManager({
-      room: roomName,
-      createNew: isNewRoom,
-      endpoint: gameServerEndpoint
-    })
-    networkManager.start()
-
     unitManager.setMap(map)
     map.appendGraphicElement(unitManager.group)
     const player1 = new Player(PlayerType.HUMAN)
@@ -60,28 +75,41 @@ export class MultiplayGame {
     player1.on('update', function() {
       menu.update('tree', player1.getResource('tree'))
     })
-    unitManager.create('town', player1).setPos(250, 150)
-    unitManager.create('villager', player1).setPos(50, 75)
-    unitManager.create('villager', player1).setPos(100, 75)
-    unitManager.create('villager', player1).setPos(150, 75)
-    unitManager.create('villager', player1).setPos(200, 75)
-    unitManager.create('villager', player1).setPos(250, 75)
 
-    unitManager.create('villager', player2).setPos(575, 525)
-    unitManager.create('villager', player2).setPos(575, 550)
-    unitManager.create('villager', player2).setPos(600, 525)
-    unitManager.create('villager', player2).setPos(600, 550)
-    unitManager.create('villager', player2).setPos(625, 525)
-    unitManager.create('villager', player2).setPos(625, 550)
-    unitManager.create('villager', player2).setPos(650, 525)
-    unitManager.create('villager', player2).setPos(650, 550)
-    unitManager.create('tree', playerGaia).setPos(100, 200)
-    unitManager.create('tree', playerGaia).setPos(100, 250)
-    unitManager.create('tree', playerGaia).setPos(200, 300)
-    unitManager.create('tree', playerGaia).setPos(200, 350)
-    unitManager.create('tree', playerGaia).setPos(250, 350)
-    unitManager.create('tree', playerGaia).setPos(400, 350)
-    unitManager.create('tree', playerGaia).setPos(400, 300)
+    const createUnit = (player: number, unit: string, x: number, y: number) => {
+      if (!this.networkManager) {
+        throw new Error('n.etworkManager must not be null')
+      }
+      const id = v1()
+      unitManager.create(id, unit, getPlayer(player)).setPos(x, y)
+      this.networkManager.sendMessage(
+        JSON.stringify({
+          type: 'create',
+          id: id,
+          unit: unit,
+          x: x,
+          y: y,
+          player: player
+        })
+      )
+    }
+    function getPlayer(player: number) {
+      if (player === 1) return player1
+      if (player === 2) return player2
+      return playerGaia
+    }
+    function getCPlayer(player: number) {
+      if (player === 1) return player2
+      if (player === 2) return player1
+      return playerGaia
+    }
+
+    if (isNewRoom) {
+      createUnit(1, 'town', 250, 150)
+      createUnit(1, 'villager', 50, 75)
+      createUnit(2, 'villager', 400, 300)
+      createUnit(3, 'tree', 200, 400)
+    }
 
     let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
@@ -105,15 +133,38 @@ export class MultiplayGame {
         }
       }
     })
-    networkManager.on('message', e => {
+    this.networkManager.on('message', e => {
       console.log(e)
       const command = JSON.parse(e.message)
-      const unit = unitManager.getUnit(command.id)
-      if (unit instanceof MobileUnit) {
-        unit.moveToPos(new Point2d(command.pos.x, command.pos.y))
+      if (command.type === 'create') {
+        unitManager
+          .create(command.id, command.unit, getCPlayer(command.player))
+          .setPos(command.x, command.y)
+      } else {
+        const unit = unitManager.getUnit(command.id)
+        if (unit instanceof MobileUnit) {
+          unit.moveToPos(new Point2d(command.pos.x, command.pos.y))
+        }
       }
     })
-    map.on('target', function(e) {
+    map.on('target', e => {
+      const moveToPos = (selected: Unit, pos: Point2d) => {
+        if (
+          selected instanceof MobileUnit &&
+          selected.player &&
+          selected.player.type == PlayerType.HUMAN &&
+          this.networkManager
+        ) {
+          selected.moveToPos(pos)
+          this.networkManager.sendMessage(
+            JSON.stringify({
+              type: 'move',
+              id: selected.id,
+              pos: pos
+            })
+          )
+        }
+      }
       unitManager.select([])
       if (selected) {
         if (selected instanceof Array) {
@@ -122,21 +173,6 @@ export class MultiplayGame {
           })
         } else {
           moveToPos(selected, e.pos)
-        }
-      }
-      function moveToPos(selected: Unit, pos: Point2d) {
-        if (
-          selected instanceof MobileUnit &&
-          selected.player &&
-          selected.player.type == PlayerType.HUMAN
-        ) {
-          selected.moveToPos(pos)
-          networkManager.sendMessage(
-            JSON.stringify({
-              id: selected.id,
-              pos: pos
-            })
-          )
         }
       }
     })
