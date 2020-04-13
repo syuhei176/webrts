@@ -19,9 +19,9 @@ export class MultiplayGame {
     mainDom,
     requestAnimationFrame,
     unitInfo,
-    mode: string,
     roomName: string,
-    isNewRoom: boolean
+    isNewRoom: boolean,
+    gameServerEndpoint: string
   ) {
     const isDebugMode = false
     const debugGrid: SVG.Rect[][] = []
@@ -45,7 +45,8 @@ export class MultiplayGame {
     console.log('addr', roomName)
     const networkManager = new NetworkManager({
       room: roomName,
-      createNew: isNewRoom
+      createNew: isNewRoom,
+      endpoint: gameServerEndpoint
     })
     networkManager.start()
 

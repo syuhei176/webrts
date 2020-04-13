@@ -7,6 +7,8 @@ const city = require('./graphics/unit/city.svg')
 const sword = require('./graphics/unit/sword.svg')
 function RTS() {}
 
+const GAME_SERVER_ENDPOINT = 'https://webrts-server.herokuapp.com'
+
 RTS.prototype.start = function() {
   window.addEventListener('load', function() {
     var requestAnimationFrame = getRequestAnimationFrame()
@@ -28,7 +30,14 @@ RTS.prototype.start = function() {
         game.start(gameDom, requestAnimationFrame, unitInfo)
       } else if (mode === 'multi') {
         const game = new MultiplayGame(gameDom, requestAnimationFrame)
-        game.start(gameDom, requestAnimationFrame, unitInfo, roomName, isNew)
+        game.start(
+          gameDom,
+          requestAnimationFrame,
+          unitInfo,
+          roomName,
+          isNew,
+          GAME_SERVER_ENDPOINT
+        )
       }
     })
   })
@@ -43,24 +52,30 @@ RTS.prototype.start = function() {
     menuPanel.className = 'title-menu-panel'
     stage[0] = document.createElement('div')
     stage[1] = document.createElement('div')
+    stage[2] = document.createElement('div')
     menuPanel.appendChild(stage[0])
     menuPanel.appendChild(stage[1])
+    menuPanel.appendChild(stage[2])
     const roomName = document.createElement('input')
     roomName.type = 'text'
+    roomName.placeholder = 'room name'
     menuPanel.appendChild(roomName)
-    const isNew = document.createElement('input')
-    isNew.type = 'checkbox'
-    menuPanel.appendChild(isNew)
     dom.appendChild(title)
     dom.appendChild(menuPanel)
     stage[0].textContent = 'Single Mode'
-    stage[1].textContent = 'Multiplay Mode'
+    stage[1].textContent = 'Create Room'
+    stage[2].textContent = 'Join Room'
     stage[0].addEventListener('click', function(e) {
       callback('single')
     })
     stage[1].addEventListener('click', function(e) {
       if (roomName.value) {
-        callback('multi', roomName.value, isNew.checked)
+        callback('multi', roomName.value, true)
+      }
+    })
+    stage[2].addEventListener('click', function(e) {
+      if (roomName.value) {
+        callback('multi', roomName.value, false)
       }
     })
   }

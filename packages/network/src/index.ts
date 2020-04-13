@@ -5,6 +5,7 @@ import { EventEmitter } from 'events'
 interface NetworkManagerOptions {
   room: string
   createNew: boolean
+  endpoint: string
 }
 
 export class NetworkManager extends EventEmitter {
@@ -15,7 +16,7 @@ export class NetworkManager extends EventEmitter {
   constructor(readonly options: NetworkManagerOptions) {
     super()
     this.id = Math.random().toString()
-    this.socket = SocketIOClient('https://webrts-server.herokuapp.com')
+    this.socket = SocketIOClient(options.endpoint)
   }
 
   start() {
