@@ -1,11 +1,13 @@
 const unitInfo = require('./unit')
-const { Game } = require('@webrts/core')
+const { Game, MultiplayGame } = require('@webrts/core')
 const town = require('./graphics/building/town.svg')
 const tree = require('./graphics/nature/tree.svg')
 const fruits = require('./graphics/nature/fruits.svg')
 const city = require('./graphics/unit/city.svg')
 const sword = require('./graphics/unit/sword.svg')
 function RTS() {}
+
+const GAME_SERVER_ENDPOINT = 'https://webrts-server.herokuapp.com'
 
 RTS.prototype.start = function() {
   window.addEventListener('load', function() {
@@ -14,17 +16,29 @@ RTS.prototype.start = function() {
 
     var selectMenuDom = document.createElement('div')
     mainDom.appendChild(selectMenuDom)
-    select_menu(selectMenuDom, function(stage) {
+    select_menu(selectMenuDom, function(mode, roomName, isNew) {
       mainDom.removeChild(selectMenuDom)
       var gameDom = document.createElement('div')
       mainDom.appendChild(gameDom)
-      const game = new Game(gameDom, requestAnimationFrame)
       unitInfo[0].graphic.path = city
       unitInfo[1].graphic.path = sword
       unitInfo[2].graphic.path = town
       unitInfo[3].graphic.path = tree
       unitInfo[4].graphic.path = fruits
-      game.start(gameDom, requestAnimationFrame, unitInfo)
+      if (mode === 'single') {
+        const game = new Game(gameDom, requestAnimationFrame)
+        game.start(gameDom, requestAnimationFrame, unitInfo)
+      } else if (mode === 'multi') {
+        const game = new MultiplayGame(gameDom, requestAnimationFrame)
+        game.start(
+          gameDom,
+          requestAnimationFrame,
+          unitInfo,
+          roomName,
+          isNew,
+          GAME_SERVER_ENDPOINT
+        )
+      }
     })
   })
 
@@ -38,17 +52,31 @@ RTS.prototype.start = function() {
     menuPanel.className = 'title-menu-panel'
     stage[0] = document.createElement('div')
     stage[1] = document.createElement('div')
+    stage[2] = document.createElement('div')
     menuPanel.appendChild(stage[0])
     menuPanel.appendChild(stage[1])
+    menuPanel.appendChild(stage[2])
+    const roomName = document.createElement('input')
+    roomName.type = 'text'
+    roomName.placeholder = 'room name'
+    menuPanel.appendChild(roomName)
     dom.appendChild(title)
     dom.appendChild(menuPanel)
-    stage[0].textContent = 'Tutorial'
-    stage[1].textContent = 'Free Mode'
+    stage[0].textContent = 'Single Mode'
+    stage[1].textContent = 'Create Room'
+    stage[2].textContent = 'Join Room'
     stage[0].addEventListener('click', function(e) {
-      callback(0)
+      callback('single')
     })
     stage[1].addEventListener('click', function(e) {
-      callback(1)
+      if (roomName.value) {
+        callback('multi', roomName.value, true)
+      }
+    })
+    stage[2].addEventListener('click', function(e) {
+      if (roomName.value) {
+        callback('multi', roomName.value, false)
+      }
     })
   }
 }

@@ -103,6 +103,10 @@ export class UnitManager extends EventEmitter {
     return Array.from(this.units.values())
   }
 
+  getUnit(id: string) {
+    return this.units.get(id)
+  }
+
   getTrainableUnits() {
     return this.getUnits().filter(unit => {
       return unit.info.type == 'trainable'

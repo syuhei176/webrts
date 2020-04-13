@@ -1,0 +1,39 @@
+{
+  "name": "@webrts/network",
+  "version": "0.0.4",
+  "description": "> TODO: description",
+  "author": "Shuhei Hiya <syuhei176@gmail.com>",
+  "homepage": "https://github.com/syuhei176/webrts#readme",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syuhei176/webrts.git"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "build:check": "tsc --noEmit",
+    "lint": "eslint --ext ts,tsx src",
+    "lint:fix": "eslint --ext ts,tsx src --fix",
+    "clean": "rm -rf lib docs",
+    "watch": "tsc --build --watch"
+  },
+  "bugs": {
+    "url": "https://github.com/syuhei176/webrts/issues"
+  },
+  "dependencies": {
+    "simple-peer": "^9.6.2",
+    "socket.io-client": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/simple-peer": "^9.6.0",
+    "@types/socket.io-client": "^1.4.32"
+  }
+}
