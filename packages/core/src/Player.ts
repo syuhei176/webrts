@@ -3,9 +3,9 @@ import { EventEmitter } from 'events'
 const colors = ['#00f', '#f00', '#0f0']
 
 export enum PlayerType {
-  HUMAN,
-  ENEMY,
-  GAIA
+  HUMAN = 'HUMAN',
+  ENEMY = 'ENEMY',
+  GAIA = 'GAIA'
 }
 
 export interface Resources {
@@ -17,7 +17,11 @@ export interface Resources {
 
 export class Player extends EventEmitter {
   public resources: Resources
-  constructor(readonly type: PlayerType) {
+  constructor(
+    readonly id: string,
+    readonly type: PlayerType,
+    readonly colorNumber: number
+  ) {
     super()
     this.resources = {
       tree: 0,
@@ -28,7 +32,7 @@ export class Player extends EventEmitter {
   }
 
   get color(): string {
-    return colors[this.type]
+    return colors[this.colorNumber]
   }
 
   getResource(type: string) {

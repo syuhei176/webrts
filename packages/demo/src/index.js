@@ -1,5 +1,5 @@
 const unitInfo = require('./unit')
-const { Game, MultiplayGame } = require('@webrts/core')
+const { Game, MultiplayGameInitializer } = require('@webrts/core')
 const town = require('./graphics/building/town.svg')
 const tree = require('./graphics/nature/tree.svg')
 const fruits = require('./graphics/nature/fruits.svg')
@@ -29,7 +29,10 @@ RTS.prototype.start = function() {
         const game = new Game(gameDom, requestAnimationFrame)
         game.start(gameDom, requestAnimationFrame, unitInfo)
       } else if (mode === 'multi') {
-        const game = new MultiplayGame(gameDom, requestAnimationFrame)
+        const game = new MultiplayGameInitializer(
+          gameDom,
+          requestAnimationFrame
+        )
         game.start(
           gameDom,
           requestAnimationFrame,

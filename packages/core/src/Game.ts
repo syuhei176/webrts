@@ -1,6 +1,6 @@
 import SVG from 'svg.js'
 import { RectangleSelector } from './ui/RectangleSelector'
-import { Map } from './Map'
+import { Camera } from './Camera'
 import Platform from './platform'
 import { ControlPanel } from './ui/controlPanel'
 import { Menu } from './ui/menu'
@@ -31,16 +31,16 @@ export class Game {
 
     const doc = SVG('svgmain').size(width, height)
     const rectangleSelector = new RectangleSelector(doc)
-    const map = new Map(doc, rectangleSelector)
+    const map = new Camera(doc, rectangleSelector)
     const unitManager = new UnitManager(doc)
     unitManager.load(unitInfo)
     //map.generate(0);
 
     unitManager.setMap(map)
     map.appendGraphicElement(unitManager.group)
-    const player1 = new Player(PlayerType.HUMAN)
-    const player2 = new Player(PlayerType.ENEMY)
-    const playerGaia = new Player(PlayerType.GAIA)
+    const player1 = new Player(v1(), PlayerType.HUMAN, 0)
+    const player2 = new Player(v1(), PlayerType.ENEMY, 1)
+    const playerGaia = new Player(v1(), PlayerType.GAIA, 2)
 
     menu.update('tree', 0)
     player1.on('update', function() {

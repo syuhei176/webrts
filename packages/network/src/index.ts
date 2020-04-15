@@ -73,7 +73,8 @@ export class NetworkManager extends EventEmitter {
    * @description send message to room
    * @param message
    */
-  sendMessage(message: string) {
+  sendMessage(message: string, isSelfSend?: boolean) {
     this.peer.send(message)
+    if (isSelfSend) this.emit('message', { message: message })
   }
 }
