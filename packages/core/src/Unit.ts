@@ -1,7 +1,6 @@
 import { IMap } from './interfaces/IMap'
 import { Player } from './Player'
 
-import { v1 } from 'uuid'
 import { IGraphic } from './interfaces/IGraphic'
 import { Point2d } from '@webrts/math2d'
 import { EventEmitter } from 'events'
@@ -13,9 +12,9 @@ export interface UnitInfo {
 }
 
 export abstract class Unit extends EventEmitter {
-  public id: string
   public pos: Point2d
   constructor(
+    readonly id: string,
     readonly graphic: IGraphic,
     readonly info: UnitInfo,
     readonly map: IMap,
@@ -23,7 +22,6 @@ export abstract class Unit extends EventEmitter {
     readonly player: Player
   ) {
     super()
-    this.id = v1()
     this.pos = new Point2d(0, 0)
     if (info.size instanceof Array) {
       this.graphic.setSize(info.size[0] * 50, info.size[1] * 50)

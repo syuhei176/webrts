@@ -1,6 +1,6 @@
 import SVG from 'svg.js'
 import { RectangleSelector } from './ui/RectangleSelector'
-import { Map } from './Map'
+import { Camera } from './Camera'
 import Platform from './platform'
 import { ControlPanel } from './ui/controlPanel'
 import { Menu } from './ui/menu'
@@ -12,6 +12,7 @@ import { BaseBuildingUnit } from './Building'
 import { MobileUnit } from './MobileUnit'
 import { Point2d } from '@webrts/math2d'
 import { showDebugGrid } from './debug'
+import { v1 } from 'uuid'
 
 export class Game {
   start(mainDom, requestAnimationFrame, unitInfo) {
@@ -30,43 +31,39 @@ export class Game {
 
     const doc = SVG('svgmain').size(width, height)
     const rectangleSelector = new RectangleSelector(doc)
-    const map = new Map(doc, rectangleSelector)
+    const map = new Camera(doc, rectangleSelector)
     const unitManager = new UnitManager(doc)
     unitManager.load(unitInfo)
     //map.generate(0);
 
     unitManager.setMap(map)
     map.appendGraphicElement(unitManager.group)
-    const player1 = new Player(PlayerType.HUMAN)
-    const player2 = new Player(PlayerType.ENEMY)
-    const playerGaia = new Player(PlayerType.GAIA)
+    const player1 = new Player(v1(), PlayerType.HUMAN, 0)
+    const player2 = new Player(v1(), PlayerType.ENEMY, 1)
+    const playerGaia = new Player(v1(), PlayerType.GAIA, 2)
 
     menu.update('tree', 0)
     player1.on('update', function() {
       menu.update('tree', player1.getResource('tree'))
     })
-    unitManager.create('town', player1).setPos(250, 150)
-    unitManager.create('villager', player1).setPos(50, 75)
-    unitManager.create('villager', player1).setPos(100, 75)
-    unitManager.create('villager', player1).setPos(150, 75)
-    unitManager.create('villager', player1).setPos(200, 75)
-    unitManager.create('villager', player1).setPos(250, 75)
+    function createUnit(player: Player, unit: string, x: number, y: number) {
+      const id = v1()
+      unitManager.create(id, unit, player).setPos(x, y)
+    }
+    createUnit(player1, 'town', 250, 150)
+    createUnit(player1, 'villager', 50, 75)
+    createUnit(player1, 'villager', 100, 75)
 
-    unitManager.create('villager', player2).setPos(575, 525)
-    unitManager.create('villager', player2).setPos(575, 550)
-    unitManager.create('villager', player2).setPos(600, 525)
-    unitManager.create('villager', player2).setPos(600, 550)
-    unitManager.create('villager', player2).setPos(625, 525)
-    unitManager.create('villager', player2).setPos(625, 550)
-    unitManager.create('villager', player2).setPos(650, 525)
-    unitManager.create('villager', player2).setPos(650, 550)
-    unitManager.create('tree', playerGaia).setPos(100, 200)
-    unitManager.create('tree', playerGaia).setPos(100, 250)
-    unitManager.create('tree', playerGaia).setPos(200, 300)
-    unitManager.create('tree', playerGaia).setPos(200, 350)
-    unitManager.create('tree', playerGaia).setPos(250, 350)
-    unitManager.create('tree', playerGaia).setPos(400, 350)
-    unitManager.create('tree', playerGaia).setPos(400, 300)
+    createUnit(player2, 'villager', 575, 525)
+    createUnit(player2, 'villager', 575, 555)
+    createUnit(player2, 'villager', 600, 525)
+    createUnit(player2, 'villager', 600, 555)
+    createUnit(player2, 'villager', 625, 525)
+    createUnit(player2, 'villager', 625, 555)
+
+    createUnit(playerGaia, 'tree', 100, 200)
+    createUnit(playerGaia, 'tree', 100, 250)
+    createUnit(playerGaia, 'tree', 200, 300)
 
     let selected: Unit[] | Unit | null = null
     unitManager.on('target', function(e) {
@@ -140,7 +137,7 @@ export class Game {
       units.forEach(unit => {
         if (unit instanceof BaseBuildingUnit) {
           if (player1.useResource('tree', 20)) {
-            unit.addUnitCreationQueue()
+            unit.addUnitCreationQueue(v1())
           }
         }
       })

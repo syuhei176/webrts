@@ -1,10 +1,10 @@
 import SVG from 'svg.js'
-import { Map } from './Map'
+import { Camera } from './Camera'
 import { UnitManager } from './UnitManager'
 
 export function showDebugGrid(
   doc: SVG.Doc,
-  map: Map,
+  map: Camera,
   unitManager: UnitManager,
   debugGrid: SVG.Rect[][]
 ) {

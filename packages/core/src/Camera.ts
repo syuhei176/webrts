@@ -8,9 +8,9 @@ import { Draggable } from './Draggable'
 import { ClickHandler } from './types'
 
 /**
- * @name Map
+ * @name Camera
  */
-export class Map extends EventEmitter {
+export class Camera extends EventEmitter {
   public width: number
   public height: number
   group: SVG.G

@@ -52,7 +52,7 @@ export class UnitManager extends EventEmitter {
     }
   }
 
-  create(metaUnitId: string, player: Player) {
+  create(id: string, metaUnitId: string, player: Player) {
     if (!this.map) {
       throw new Error('map must not be null')
     }
@@ -64,9 +64,10 @@ export class UnitManager extends EventEmitter {
     })
     let person: Unit
     if (metaUnit.unitinfo.type == 'nature') {
-      person = new NatureUnit(ug, metaUnit.unitinfo, this.map, this, player)
+      person = new NatureUnit(id, ug, metaUnit.unitinfo, this.map, this, player)
     } else if (metaUnit.unitinfo.type == 'building') {
       person = new BaseBuildingUnit(
+        id,
         ug,
         metaUnit.unitinfo,
         this.map,
@@ -74,7 +75,7 @@ export class UnitManager extends EventEmitter {
         player
       )
     } else {
-      person = new MobileUnit(ug, metaUnit.unitinfo, this.map, this, player)
+      person = new MobileUnit(id, ug, metaUnit.unitinfo, this.map, this, player)
     }
     person.on('click', e => {
       if (this.clickHandler) {
@@ -123,9 +124,9 @@ export class UnitManager extends EventEmitter {
     }) as NatureUnit[]
   }
 
-  getNearBuilding() {
+  getNearBuilding(playerId: string) {
     return this.getUnits().filter(unit => {
-      return unit.info.type == 'building'
+      return unit.player.id === playerId && unit.info.type === 'building'
     }) as BaseBuildingUnit[]
   }
 
