@@ -63,8 +63,8 @@ export class MobileUnit extends Unit {
       '<div><span>gathering:</span>' +
       this.context.gatheringAmount +
       '</div>' +
-      '<div><span>count:</span>' +
-      this.count +
+      '<div><span>id:</span>' +
+      this.id +
       '</div>' +
       '<div><span>count2:</span>' +
       this.count2 +
@@ -210,7 +210,7 @@ export class MobileUnit extends Unit {
       this.count = 20
       this.context.gatheringAmount += this.context.target.decrease(1)
       if (this.context.gatheringAmount >= 10) {
-        const buildings = this.unitManager.getNearBuilding()
+        const buildings = this.unitManager.getNearBuilding(this.player.id)
         this.returnToTarget(buildings[0])
       }
     }

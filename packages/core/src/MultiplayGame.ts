@@ -86,11 +86,15 @@ export class MultiplayGameInitializer {
       const player1Id = game.addPlayer(PlayerType.HUMAN, true)
       const player2Id = game.addPlayer(PlayerType.HUMAN, false)
       const gaiaId = game.addPlayer(PlayerType.GAIA, false)
-      game.createUnit(player1Id, 'town', 250, 150)
-      game.createUnit(player1Id, 'villager', 50, 75)
-      game.createUnit(player2Id, 'town', 450, 200)
-      game.createUnit(player2Id, 'villager', 400, 300)
-      game.createUnit(gaiaId, 'tree', 200, 400)
+      game.createUnit(player1Id, 'town', 200, 150)
+      game.createUnit(player1Id, 'villager', 75, 75)
+      game.createUnit(player2Id, 'town', 500, 250)
+      game.createUnit(player2Id, 'villager', 475, 400)
+      game.createUnit(gaiaId, 'tree', 100, 300)
+      game.createUnit(gaiaId, 'tree', 250, 400)
+      game.createUnit(gaiaId, 'tree', 300, 400)
+      game.createUnit(gaiaId, 'tree', 400, 400)
+      game.createUnit(gaiaId, 'tree', 400, 150)
     }
 
     let selected: Unit[] | Unit | null = null
@@ -108,15 +112,7 @@ export class MultiplayGameInitializer {
         if (!(selected instanceof MobileUnit)) {
           return
         }
-        if (
-          target.player &&
-          !game.isMe(target.player.id) &&
-          target.player.type === PlayerType.HUMAN
-        ) {
-          selected.moveToEnemy(target)
-        } else {
-          selected.moveToTarget(target)
-        }
+        game.directMovingToUnit(selected, target)
       }
     })
     map.on('target', e => {
@@ -126,7 +122,7 @@ export class MultiplayGameInitializer {
           selected.player &&
           game.isMe(selected.player.id)
         ) {
-          game.operateUnitToMove(selected, pos)
+          game.directMovingToPos(selected, pos)
         }
       }
       unitManager.select([])
@@ -169,7 +165,7 @@ export class MultiplayGameInitializer {
       units.forEach(unit => {
         if (unit instanceof BaseBuildingUnit) {
           if (game.getMe().useResource('tree', 20)) {
-            unit.addUnitCreationQueue()
+            game.trainUnit(unit)
           }
         }
       })
@@ -191,6 +187,9 @@ export class MultiplayGameInitializer {
   }
 }
 
+/**
+ * @name MultiplayGame
+ */
 export class MultiplayGame extends EventEmitter {
   playerId: string | null = null
   players: Map<string, Player> = new Map<string, Player>()
@@ -233,10 +232,30 @@ export class MultiplayGame extends EventEmitter {
       if (unit instanceof MobileUnit) {
         unit.moveToPos(new Point2d(command.pos.x, command.pos.y))
       }
+    } else if (command.type === 'MoveToEnemyCommand') {
+      const unit = this.unitManager.getUnit(command.id)
+      const target = this.unitManager.getUnit(command.targetId)
+      if (unit instanceof MobileUnit) {
+        unit.moveToEnemy(target)
+      }
+    } else if (command.type === 'MoveToTargetCommand') {
+      const unit = this.unitManager.getUnit(command.id)
+      const target = this.unitManager.getUnit(command.targetId)
+      if (unit instanceof MobileUnit) {
+        unit.moveToTarget(target)
+      }
+    } else if (command.type === 'TrainUnitCommand') {
+      const building = this.unitManager.getUnit(command.id)
+      if (building instanceof BaseBuildingUnit) {
+        building.addUnitCreationQueue(command.newUnitId)
+      }
     }
   }
 
   private setPlayerId(id: string) {
+    if (this.playerId !== null) {
+      throw new Error('playerId must be null')
+    }
     this.playerId = id
   }
 
@@ -248,6 +267,12 @@ export class MultiplayGame extends EventEmitter {
     return this.getPlayer(this.playerId as string) as Player
   }
 
+  /**
+   * @name addPlayer
+   * @param playerType player type to add
+   * @param isOwner the player is owner or not
+   * @returns player ID
+   */
   addPlayer(playerType: PlayerType, isOwner: boolean): string {
     const id = v1()
     this.networkManager.sendMessage(
@@ -289,13 +314,51 @@ export class MultiplayGame extends EventEmitter {
     )
   }
 
-  operateUnitToMove(unit: MobileUnit, pos: Point2d) {
+  directMovingToPos(unit: MobileUnit, pos: Point2d) {
     unit.moveToPos(pos)
     this.networkManager.sendMessage(
       JSON.stringify({
         type: 'MoveUnitCommand',
         id: unit.id,
         pos: pos
+      })
+    )
+  }
+
+  directMovingToUnit(unit: MobileUnit, target: Unit) {
+    if (
+      target.player &&
+      !this.isMe(target.player.id) &&
+      target.player.type === PlayerType.HUMAN
+    ) {
+      unit.moveToEnemy(target)
+      this.networkManager.sendMessage(
+        JSON.stringify({
+          type: 'MoveToEnemyCommand',
+          id: unit.id,
+          targetId: target.id
+        })
+      )
+    } else {
+      unit.moveToTarget(target)
+      this.networkManager.sendMessage(
+        JSON.stringify({
+          type: 'MoveToTargetCommand',
+          id: unit.id,
+          targetId: target.id
+        })
+      )
+    }
+  }
+
+  trainUnit(unit: BaseBuildingUnit) {
+    const id = v1()
+    unit.addUnitCreationQueue(id)
+    this.networkManager.sendMessage(
+      JSON.stringify({
+        type: 'TrainUnitCommand',
+        id: unit.id,
+        newUnitId: id
       })
     )
   }

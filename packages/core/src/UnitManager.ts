@@ -124,9 +124,9 @@ export class UnitManager extends EventEmitter {
     }) as NatureUnit[]
   }
 
-  getNearBuilding() {
+  getNearBuilding(playerId: string) {
     return this.getUnits().filter(unit => {
-      return unit.info.type == 'building'
+      return unit.player.id === playerId && unit.info.type === 'building'
     }) as BaseBuildingUnit[]
   }
 

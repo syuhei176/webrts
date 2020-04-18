@@ -137,7 +137,7 @@ export class Game {
       units.forEach(unit => {
         if (unit instanceof BaseBuildingUnit) {
           if (player1.useResource('tree', 20)) {
-            unit.addUnitCreationQueue()
+            unit.addUnitCreationQueue(v1())
           }
         }
       })
