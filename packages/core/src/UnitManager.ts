@@ -3,7 +3,7 @@ import SVG from 'svg.js'
 import { Unit } from './Unit'
 import { IMap } from './interfaces/IMap'
 import { Player } from './Player'
-import { Point2d } from '@webrts/math2d'
+import { Point2d, Rectangle2D } from '@webrts/math2d'
 import { NatureUnit } from './NatureUnit'
 import { BaseBuildingUnit } from './Building'
 import { MobileUnit } from './MobileUnit'
@@ -106,6 +106,12 @@ export class UnitManager extends EventEmitter {
 
   getUnit(id: string) {
     return this.units.get(id)
+  }
+
+  getUnitsWithin(pos: Point2d): Unit[] {
+    return this.getUnits().filter(unit => {
+      return unit.bound.contains(pos.x, pos.y)
+    })
   }
 
   getTrainableUnits() {

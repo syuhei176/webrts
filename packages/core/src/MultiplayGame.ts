@@ -98,23 +98,6 @@ export class MultiplayGameInitializer {
     }
 
     let selected: Unit[] | Unit | null = null
-    unitManager.on('target', function(e) {
-      if (selected) {
-        if (selected instanceof Array) {
-          selected.forEach(s => {
-            selectTarget(s, e.unit)
-          })
-        } else {
-          selectTarget(selected, e.unit)
-        }
-      }
-      function selectTarget(selected: Unit, target: Unit) {
-        if (!(selected instanceof MobileUnit)) {
-          return
-        }
-        game.directMovingToUnit(selected, target)
-      }
-    })
     map.on('target', e => {
       const moveToPos = (selected: Unit, pos: Point2d) => {
         if (
@@ -125,14 +108,33 @@ export class MultiplayGameInitializer {
           game.directMovingToPos(selected, pos)
         }
       }
-      unitManager.select([])
-      if (selected) {
-        if (selected instanceof Array) {
-          selected.forEach(s => {
-            moveToPos(s, e.pos)
-          })
-        } else {
-          moveToPos(selected, e.pos)
+      const units = unitManager.getUnitsWithin(e.pos)
+      if (units.length > 0) {
+        if (selected) {
+          if (selected instanceof Array) {
+            selected.forEach(s => {
+              selectTarget(s, units[0])
+            })
+          } else {
+            selectTarget(selected, units[0])
+          }
+        }
+        function selectTarget(selected: Unit, target: Unit) {
+          if (!(selected instanceof MobileUnit)) {
+            return
+          }
+          game.directMovingToUnit(selected, target)
+        }
+      } else {
+        unitManager.select([])
+        if (selected) {
+          if (selected instanceof Array) {
+            selected.forEach(s => {
+              moveToPos(s, e.pos)
+            })
+          } else {
+            moveToPos(selected, e.pos)
+          }
         }
       }
     })

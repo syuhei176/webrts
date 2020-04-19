@@ -66,36 +66,38 @@ export class Game {
     createUnit(playerGaia, 'tree', 200, 300)
 
     let selected: Unit[] | Unit | null = null
-    unitManager.on('target', function(e) {
-      if (selected) {
-        if (selected instanceof Array) {
-          selected.forEach(s => {
-            selectTarget(s, e.unit)
-          })
-        } else {
-          selectTarget(selected, e.unit)
-        }
-      }
-      function selectTarget(selected: Unit, target) {
-        if (!(selected instanceof MobileUnit)) {
-          return
-        }
-        if (target.player && target.player.type === PlayerType.ENEMY) {
-          selected.moveToEnemy(target)
-        } else {
-          selected.moveToTarget(target)
-        }
-      }
-    })
     map.on('target', function(e) {
-      unitManager.select([])
-      if (selected) {
-        if (selected instanceof Array) {
-          selected.forEach(s => {
-            moveToPos(s, e.pos)
-          })
-        } else {
-          moveToPos(selected, e.pos)
+      const units = unitManager.getUnitsWithin(e.pos)
+      if (units.length > 0) {
+        if (selected) {
+          if (selected instanceof Array) {
+            selected.forEach(s => {
+              selectTarget(s, units[0])
+            })
+          } else {
+            selectTarget(selected, units[0])
+          }
+        }
+        function selectTarget(selected: Unit, target) {
+          if (!(selected instanceof MobileUnit)) {
+            return
+          }
+          if (target.player && target.player.type === PlayerType.ENEMY) {
+            selected.moveToEnemy(target)
+          } else {
+            selected.moveToTarget(target)
+          }
+        }
+      } else {
+        unitManager.select([])
+        if (selected) {
+          if (selected instanceof Array) {
+            selected.forEach(s => {
+              moveToPos(s, e.pos)
+            })
+          } else {
+            moveToPos(selected, e.pos)
+          }
         }
       }
       function moveToPos(selected: Unit, pos: Point2d) {

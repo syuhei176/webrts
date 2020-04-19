@@ -2,7 +2,7 @@ import { IMap } from './interfaces/IMap'
 import { Player } from './Player'
 
 import { IGraphic } from './interfaces/IGraphic'
-import { Point2d } from '@webrts/math2d'
+import { Point2d, Rectangle2D } from '@webrts/math2d'
 import { EventEmitter } from 'events'
 import { UnitManager } from './UnitManager'
 
@@ -13,6 +13,7 @@ export interface UnitInfo {
 
 export abstract class Unit extends EventEmitter {
   public pos: Point2d
+  public bound: Rectangle2D
   constructor(
     readonly id: string,
     readonly graphic: IGraphic,
@@ -24,8 +25,10 @@ export abstract class Unit extends EventEmitter {
     super()
     this.pos = new Point2d(0, 0)
     if (info.size instanceof Array) {
+      this.bound = new Rectangle2D(0, 0, info.size[0] * 50, info.size[1] * 50)
       this.graphic.setSize(info.size[0] * 50, info.size[1] * 50)
     } else {
+      this.bound = new Rectangle2D(0, 0, info.size * 50, info.size * 50)
       this.graphic.setSize(info.size * 50, info.size * 50)
     }
     this.graphic.click(e => {
@@ -60,6 +63,8 @@ export abstract class Unit extends EventEmitter {
 
   setPos(x: number, y: number) {
     this.pos.setLocation(x, y)
+    this.bound.x = x
+    this.bound.y = y
     this.graphic.setPos(x, y)
   }
 
@@ -70,8 +75,7 @@ export abstract class Unit extends EventEmitter {
   setTilePos(x: number, y: number) {
     x *= 50
     y *= 50
-    this.pos.setLocation(x, y)
-    this.graphic.setPos(x, y)
+    this.setPos(x, y)
   }
 
   abstract main(): void
