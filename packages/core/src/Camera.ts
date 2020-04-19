@@ -14,6 +14,8 @@ export class Camera extends EventEmitter {
   public width: number
   public height: number
   group: SVG.G
+  gameGroup: SVG.G
+  ground: SVG.Rect
   coll: SVG.Rect
   // map position
   pos: Point2d = Point2d.zero()
@@ -29,10 +31,18 @@ export class Camera extends EventEmitter {
     const width = 2000
     const height = 2000
     this.group = this.doc.group()
+    this.gameGroup = this.doc.group()
+    this.ground = this.doc.rect(width, height).move(0, 0)
     this.coll = this.doc.rect(width, height).move(0, 0)
+    this.group.add(this.ground)
+    this.group.add(this.gameGroup)
     this.group.add(this.coll)
-    this.coll.attr({
+    this.ground.attr({
       fill: '#7f7'
+    })
+    this.coll.attr({
+      fill: '#fff',
+      opacity: 0
     })
     const draggable = new Draggable(this.doc, this.coll)
     draggable.drag(
@@ -76,7 +86,7 @@ export class Camera extends EventEmitter {
   }
 
   appendGraphicElement(g: SVG.G) {
-    this.group.add(g)
+    this.gameGroup.add(g)
   }
 
   setClickHandler(clickHandler) {
