@@ -13,7 +13,8 @@ export interface UnitInfo {
 
 export abstract class Unit extends EventEmitter {
   public pos: Point2d
-  public bound: Rectangle2D
+  public width: number = 0
+  public height: number = 0
   constructor(
     readonly id: string,
     readonly graphic: IGraphic,
@@ -25,47 +26,58 @@ export abstract class Unit extends EventEmitter {
     super()
     this.pos = new Point2d(0, 0)
     if (info.size instanceof Array) {
-      this.bound = new Rectangle2D(0, 0, info.size[0] * 50, info.size[1] * 50)
+      this.width = info.size[0] * 50
+      this.height = info.size[1] * 50
       this.graphic.setSize(info.size[0] * 50, info.size[1] * 50)
     } else {
-      this.bound = new Rectangle2D(0, 0, info.size * 50, info.size * 50)
+      this.width = info.size * 50
+      this.height = info.size * 50
       this.graphic.setSize(info.size * 50, info.size * 50)
     }
-    this.graphic.click(e => {
-      console.log('mouseup', e.button)
-      this.emit('click', e)
-    })
     this.graphic.setPlayerColor(this.player.color)
   }
   remove() {
     this.graphic.remove()
   }
+
+  private getBound(offset: number) {
+    return new Rectangle2D(
+      this.pos.x + offset,
+      this.pos.y + offset,
+      this.width - offset * 2,
+      this.height - offset * 2
+    )
+  }
+
+  /**
+   * get collision bound
+   */
   collBound() {
     const info = this.info
-    let offset = 5
-    let w: number
-    let h: number
-    if (info.type == 'trainable') offset = 5
-    if (Array.isArray(info.size)) {
-      w = info.size[0] * 50
-      h = info.size[1] * 50
+    if (info.type == 'trainable') {
+      return this.getBound(5)
     } else {
-      w = info.size * 50
-      h = info.size * 50
-    }
-    return {
-      x: this.pos.x + offset,
-      y: this.pos.y + offset,
-      w: w - offset * 2,
-      h: h - offset * 2
+      return this.getBound(0)
     }
   }
 
-  setPos(x: number, y: number) {
-    this.pos.setLocation(x, y)
-    this.bound.x = x
-    this.bound.y = y
-    this.graphic.setPos(x, y)
+  get bound() {
+    return this.getBound(0)
+  }
+
+  /**
+   * get position
+   */
+  get centerPos() {
+    return new Point2d(
+      this.pos.x + this.width / 2,
+      this.pos.y + this.height / 2
+    )
+  }
+
+  setPos(pos: Point2d) {
+    this.pos.setLocation(pos.x, pos.y)
+    this.graphic.setPos(pos.x, pos.y)
   }
 
   get tilePos() {
@@ -73,9 +85,7 @@ export abstract class Unit extends EventEmitter {
   }
 
   setTilePos(x: number, y: number) {
-    x *= 50
-    y *= 50
-    this.setPos(x, y)
+    this.setPos(new Point2d(x * 50, y * 50))
   }
 
   abstract main(): void

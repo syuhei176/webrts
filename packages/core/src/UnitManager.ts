@@ -77,20 +77,6 @@ export class UnitManager extends EventEmitter {
     } else {
       person = new MobileUnit(id, ug, metaUnit.unitinfo, this.map, this, player)
     }
-    person.on('click', e => {
-      if (this.clickHandler) {
-        this.clickHandler(
-          e,
-          () => {
-            this.select([person])
-            this.emit('click', { unit: person, event: e })
-          },
-          () => {
-            this.emit('target', { unit: person, event: e })
-          }
-        )
-      }
-    })
     this.units.set(person.id, person)
     return person
   }
@@ -160,10 +146,10 @@ export class UnitManager extends EventEmitter {
         .filter(function(bound) {
           const targetBound = targetUnit.collBound()
           return (
-            bound.x < targetBound.x + targetBound.w &&
-            targetBound.x < bound.x + bound.w &&
-            bound.y < targetBound.y + targetBound.h &&
-            targetBound.y < bound.y + bound.h
+            bound.x < targetBound.x + targetBound.width &&
+            targetBound.x < bound.x + bound.width &&
+            bound.y < targetBound.y + targetBound.height &&
+            targetBound.y < bound.y + bound.height
           )
         }).length > 0
     )

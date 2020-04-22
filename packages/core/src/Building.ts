@@ -50,7 +50,7 @@ export class BaseBuildingUnit extends Unit {
               this.player
             ) as MobileUnit
             if (unit) {
-              unit.setPos(this.pos.x - 100, this.pos.y)
+              unit.setPos(new Point2d(this.pos.x - 100, this.pos.y))
               const pos = new Point2d(this.pos.x - 100, this.pos.y + 120)
               unit.moveToPos(pos)
             }

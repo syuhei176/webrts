@@ -55,6 +55,11 @@ export class MobileUnit extends Unit {
     super(id, graphic, info, map, unitManager, player)
   }
 
+  private getMinimalDistance(unit: Unit) {
+    const minimalDistance = ((unit.width + this.width) * 2) / 3
+    return minimalDistance
+  }
+
   getInfo() {
     return (
       '<div><span>hp:</span>' +
@@ -65,6 +70,9 @@ export class MobileUnit extends Unit {
       '</div>' +
       '<div><span>id:</span>' +
       this.id +
+      '</div>' +
+      '<div><span>count1:</span>' +
+      this.count +
       '</div>' +
       '<div><span>count2:</span>' +
       this.count2 +
@@ -154,21 +162,31 @@ export class MobileUnit extends Unit {
 
   executeMovingToResource(event) {
     this.movingProcess()
-    const distance = Point2d.distance(this.pos, this.context.target?.pos)
-    if (distance < 22) {
-      this.count = 20
-      this.changeStatus(MobileUnitStatus.GATHERING)
+    const resource = this.context.target
+    if (resource) {
+      const minimamDistance = this.getMinimalDistance(resource)
+      const distance = Point2d.distance(this.centerPos, resource.centerPos)
+      if (distance < minimamDistance) {
+        this.count = 20
+        this.changeStatus(MobileUnitStatus.GATHERING)
+      }
     }
   }
 
   executeMovingToUnit(event) {
     this.movingProcess()
-    const dis = Point2d.distance(this.pos, this.context.target?.pos)
-    if (dis < 80) {
-      this.count = 20
-      this.changeStatus(MobileUnitStatus.ATTACKING)
+    const target = this.context.target
+    if (target) {
+      const minimamDistance = this.getMinimalDistance(target)
+      const attackRange = 25
+      const distance = Point2d.distance(this.centerPos, target.centerPos)
+      if (distance < minimamDistance + attackRange) {
+        this.count = 20
+        this.changeStatus(MobileUnitStatus.ATTACKING)
+      }
     }
   }
+
   executeReturning(event) {
     this.movingProcess()
     const dis = Point2d.distance(this.pos, this.context.target?.pos)
@@ -184,23 +202,28 @@ export class MobileUnit extends Unit {
 
   executeAttacking(event) {
     this.movingProcess()
-    const dis = Point2d.distance(this.pos, this.context.target?.pos)
-    if (dis < 80) {
-      this.count--
-      if (this.count <= 0 && this.context.target instanceof MobileUnit) {
-        this.count = 20
-        const attackedResult = this.context.target.attacked(this.attack)
-        if (attackedResult && !attackedResult.alive) {
-          setTimeout(() => {
-            if (this.context.target) {
-              this.unitManager.remove(this.context.target.id)
-            }
-            this.changeStatus(MobileUnitStatus.WAITING)
-          }, 20)
+    const target = this.context.target
+    if (target) {
+      const minimamDistance = this.getMinimalDistance(target)
+      const attackRange = 25
+      const distance = Point2d.distance(this.centerPos, target.centerPos)
+      if (distance < minimamDistance + attackRange) {
+        this.count--
+        if (this.count <= 0 && this.context.target instanceof MobileUnit) {
+          this.count = 20
+          const attackedResult = this.context.target.attacked(this.attack)
+          if (attackedResult && !attackedResult.alive) {
+            setTimeout(() => {
+              if (this.context.target) {
+                this.unitManager.remove(this.context.target.id)
+              }
+              this.changeStatus(MobileUnitStatus.WAITING)
+            }, 20)
+          }
         }
+      } else {
+        this.moveToTarget(this.context.target)
       }
-    } else {
-      this.moveToTarget(this.context.target)
     }
   }
 
@@ -226,15 +249,15 @@ export class MobileUnit extends Unit {
 
   randomMove() {
     const r = Math.random() * 20
-    this.pos = this.pos.add(new Point2d(r, 20 - r))
+    this.setPos(this.pos.add(new Point2d(r, 20 - r)))
   }
 
   movingProcess() {
     if (this.nextDestination) {
       //次の目的地がある場合
-      this.pos = this.pos.add(this.vec)
+      this.setPos(this.pos.add(this.vec))
       if (this.unitManager.hit(this)) {
-        this.pos = this.pos.sub(this.vec)
+        this.setPos(this.pos.sub(this.vec))
         this.count2--
         if (this.count2 <= 0) {
           //moving_to_unitが続くとき
@@ -257,7 +280,6 @@ export class MobileUnit extends Unit {
       } else {
         this.count--
       }
-      this.graphic.setPos(this.pos.x, this.pos.y)
       //nextDestinationについた場合
       if (this.count <= 0) this.nextDestination = null
     } else {

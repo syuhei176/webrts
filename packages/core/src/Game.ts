@@ -48,7 +48,7 @@ export class Game {
     })
     function createUnit(player: Player, unit: string, x: number, y: number) {
       const id = v1()
-      unitManager.create(id, unit, player).setPos(x, y)
+      unitManager.create(id, unit, player).setPos(new Point2d(x, y))
     }
     createUnit(player1, 'town', 250, 150)
     createUnit(player1, 'villager', 50, 75)
@@ -110,18 +110,16 @@ export class Game {
         }
       }
     })
-    map.on('click', function(e) {
+    map.on('click', e => {
       console.log('click map')
-      unitManager.select([])
+      const units = unitManager.getUnitsWithin(e.pos)
+      unitManager.select(units)
+      selectUnits(units)
       /*
       if (player1.useResource('tree', 50)) {
         unitManager.create('town', player1).setPos(e.pos.x, e.pos.y)
       }
       */
-    })
-
-    unitManager.on('click', e => {
-      selectUnits([e.unit])
     })
 
     map.on('selected', (rectangleSelector: RectangleSelector) => {

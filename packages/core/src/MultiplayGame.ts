@@ -140,16 +140,14 @@ export class MultiplayGameInitializer {
     })
     map.on('click', function(e) {
       console.log('click map')
-      unitManager.select([])
+      const units = unitManager.getUnitsWithin(e.pos)
+      unitManager.select(units)
+      selectUnits(units)
       /*
       if (player1.useResource('tree', 50)) {
         unitManager.create('town', player1).setPos(e.pos.x, e.pos.y)
       }
       */
-    })
-
-    unitManager.on('click', e => {
-      selectUnits([e.unit])
     })
 
     map.on('selected', (rectangleSelector: RectangleSelector) => {
@@ -228,7 +226,7 @@ export class MultiplayGame extends EventEmitter {
           command.unit,
           this.getPlayer(command.player) as Player
         )
-        .setPos(command.x, command.y)
+        .setPos(new Point2d(command.x, command.y))
     } else if (command.type === 'MoveUnitCommand') {
       const unit = this.unitManager.getUnit(command.id)
       if (unit instanceof MobileUnit) {
@@ -303,7 +301,7 @@ export class MultiplayGame extends EventEmitter {
     const id = v1()
     this.unitManager
       .create(id, unit, this.getPlayer(playerId) as Player)
-      .setPos(x, y)
+      .setPos(new Point2d(x, y))
     this.networkManager.sendMessage(
       JSON.stringify({
         type: 'CreateUnitCommand',
