@@ -138,22 +138,14 @@ export class MultiplayGameInitializer {
         }
       }
     })
-    map.on('click', function(e) {
-      console.log('click map')
-      const units = unitManager.getUnitsWithin(e.pos)
-      unitManager.select(units)
-      selectUnits(units)
-      /*
-      if (player1.useResource('tree', 50)) {
-        unitManager.create('town', player1).setPos(e.pos.x, e.pos.y)
-      }
-      */
-    })
 
     map.on('selected', (rectangleSelector: RectangleSelector) => {
-      const units = unitManager.getTrainableUnits().filter(unit => {
+      let units = unitManager.getTrainableUnits().filter(unit => {
         return rectangleSelector.isContained(map.global2screen(unit.pos))
       })
+      if (units.length === 0) {
+        units = unitManager.getUnitsWithin(rectangleSelector.startPos)
+      }
       unitManager.select(units)
       selectUnits(units)
     })
