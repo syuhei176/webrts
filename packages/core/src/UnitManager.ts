@@ -110,10 +110,20 @@ export class UnitManager extends EventEmitter {
     return this.getUnits()
   }
 
-  getNearNature(): NatureUnit[] {
-    return this.getUnits().filter(unit => {
+  getNearNature(baseUnit: Unit): NatureUnit[] {
+    const natures = this.getUnits().filter(unit => {
       return unit.info.type == 'nature'
     }) as NatureUnit[]
+    let minimalDistance = 1000 * 1000
+    let result: NatureUnit[] = []
+    natures.forEach(n => {
+      const d = Point2d.distanceSq(baseUnit.pos, n.pos)
+      if (minimalDistance > d) {
+        result = [n]
+        minimalDistance = d
+      }
+    })
+    return result
   }
 
   getNearBuilding(playerId: string) {

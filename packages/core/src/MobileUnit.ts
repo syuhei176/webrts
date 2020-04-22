@@ -194,7 +194,7 @@ export class MobileUnit extends Unit {
       this.player.addResource('tree', this.context.gatheringAmount)
       this.context.gatheringAmount = 0
       this.count = 20
-      const nature = this.unitManager.getNearNature()
+      const nature = this.unitManager.getNearNature(this)
       this.context.target = nature[0]
       this.moveToTarget(this.context.target)
     }
