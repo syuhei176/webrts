@@ -144,7 +144,15 @@ export class Camera extends EventEmitter {
       })
       .forEach(function(p) {
         for (let i = p.x; i < p.x + p.w; i++) {
+          if (i < 0) {
+            console.warn('unit x position must not be less than 0')
+            continue
+          }
           for (let j = p.y; j < p.y + p.h; j++) {
+            if (j < 0) {
+              console.warn('unit y position must not be less than 0')
+              continue
+            }
             graph[j][i] = notWalkable
           }
         }

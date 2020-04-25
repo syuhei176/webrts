@@ -4,16 +4,16 @@ export default function() {
       window.addEventListener('keydown', function(e) {
         switch (e.keyCode) {
           case 68: //d
-            map.move(-10, 0)
+            map.move(-25, 0)
             break
           case 65: //a
-            map.move(10, 0)
+            map.move(25, 0)
             break
           case 87: //w
-            map.move(0, 10)
+            map.move(0, 25)
             break
           case 83: //s
-            map.move(0, -10)
+            map.move(0, -25)
             break
         }
       })

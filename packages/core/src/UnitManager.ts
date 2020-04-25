@@ -25,6 +25,7 @@ export class UnitManager extends EventEmitter {
   private cursors: SVG.Circle[]
   private map: IMap | null = null
   clickHandler: null | ClickHandler = null
+
   constructor(readonly doc: SVG.Doc) {
     super()
     this.group = doc.group()
@@ -145,6 +146,10 @@ export class UnitManager extends EventEmitter {
   }
 
   hit(targetUnit: Unit) {
+    const targetBound = targetUnit.collBound()
+    if (targetBound.x < 0 || targetBound.y < 0) {
+      return true
+    }
     return (
       this.getUnits()
         .filter(unit => {
@@ -154,7 +159,6 @@ export class UnitManager extends EventEmitter {
           return unit.collBound()
         })
         .filter(function(bound) {
-          const targetBound = targetUnit.collBound()
           return (
             bound.x < targetBound.x + targetBound.width &&
             targetBound.x < bound.x + bound.width &&
