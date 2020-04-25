@@ -13,6 +13,7 @@ import { MobileUnit } from './MobileUnit'
 import { Point2d } from '@webrts/math2d'
 import { showDebugGrid } from './debug'
 import { v1 } from 'uuid'
+import { generateMap } from './MapGenerator'
 
 export class Game {
   start(mainDom, requestAnimationFrame, unitInfo) {
@@ -46,24 +47,21 @@ export class Game {
     player1.on('update', function() {
       menu.update('tree', player1.getResource('tree'))
     })
-    function createUnit(player: Player, unit: string, x: number, y: number) {
-      const id = v1()
-      unitManager.create(id, unit, player).setPos(new Point2d(x, y))
+
+    function getPlayer(id: string) {
+      return [player1, player2, playerGaia].filter(p => p.id === id)[0]
     }
-    createUnit(player1, 'town', 250, 150)
-    createUnit(player1, 'villager', 50, 75)
-    createUnit(player1, 'villager', 100, 75)
 
-    createUnit(player2, 'villager', 575, 525)
-    createUnit(player2, 'villager', 575, 555)
-    createUnit(player2, 'villager', 600, 525)
-    createUnit(player2, 'villager', 600, 555)
-    createUnit(player2, 'villager', 625, 525)
-    createUnit(player2, 'villager', 625, 555)
-
-    createUnit(playerGaia, 'tree', 100, 200)
-    createUnit(playerGaia, 'tree', 100, 250)
-    createUnit(playerGaia, 'tree', 200, 300)
+    generateMap(
+      [player1.id, player2.id],
+      playerGaia.id,
+      (playerId: string, unit: string, x: number, y: number) => {
+        const id = v1()
+        unitManager
+          .create(id, unit, getPlayer(playerId))
+          .setPos(new Point2d(x, y))
+      }
+    )
 
     let selected: Unit[] | Unit | null = null
     map.on('target', function(e) {

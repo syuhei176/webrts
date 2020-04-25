@@ -16,6 +16,7 @@ import { showDebugGrid } from './debug'
 import { v1 } from 'uuid'
 import { Command } from './command'
 import { EventEmitter } from 'events'
+import { generateMap } from './MapGenerator'
 
 export class MultiplayGameInitializer {
   networkManager: NetworkManager | null = null
@@ -86,15 +87,13 @@ export class MultiplayGameInitializer {
       const player1Id = game.addPlayer(PlayerType.HUMAN, true)
       const player2Id = game.addPlayer(PlayerType.HUMAN, false)
       const gaiaId = game.addPlayer(PlayerType.GAIA, false)
-      game.createUnit(player1Id, 'town', 200, 150)
-      game.createUnit(player1Id, 'villager', 75, 75)
-      game.createUnit(player2Id, 'town', 500, 250)
-      game.createUnit(player2Id, 'villager', 475, 400)
-      game.createUnit(gaiaId, 'tree', 100, 300)
-      game.createUnit(gaiaId, 'tree', 250, 400)
-      game.createUnit(gaiaId, 'tree', 300, 400)
-      game.createUnit(gaiaId, 'tree', 400, 400)
-      game.createUnit(gaiaId, 'tree', 400, 150)
+      generateMap(
+        [player1Id, player2Id],
+        gaiaId,
+        (playerId: string, unit: string, x: number, y: number) => {
+          game.createUnit(playerId, unit, x, y)
+        }
+      )
     }
 
     let selected: Unit[] | Unit | null = null
