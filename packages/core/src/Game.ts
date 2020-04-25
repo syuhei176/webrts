@@ -76,16 +76,6 @@ export class Game {
             selectTarget(selected, units[0])
           }
         }
-        function selectTarget(selected: Unit, target) {
-          if (!(selected instanceof MobileUnit)) {
-            return
-          }
-          if (target.player && target.player.type === PlayerType.ENEMY) {
-            selected.moveToEnemy(target)
-          } else {
-            selected.moveToTarget(target)
-          }
-        }
       } else {
         unitManager.select([])
         if (selected) {
@@ -146,5 +136,16 @@ export class Game {
       requestAnimationFrame(recursiveAnim)
     }
     requestAnimationFrame(recursiveAnim)
+  }
+}
+
+function selectTarget(selected: Unit, target) {
+  if (!(selected instanceof MobileUnit)) {
+    return
+  }
+  if (target.player && target.player.type === PlayerType.ENEMY) {
+    selected.moveToEnemy(target)
+  } else {
+    selected.moveToTarget(target)
   }
 }

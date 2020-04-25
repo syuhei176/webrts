@@ -13,8 +13,8 @@ export interface UnitInfo {
 
 export abstract class Unit extends EventEmitter {
   public pos: Point2d
-  public width: number = 0
-  public height: number = 0
+  public width = 0
+  public height = 0
   constructor(
     readonly id: string,
     readonly graphic: IGraphic,

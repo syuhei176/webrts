@@ -97,6 +97,13 @@ export class MultiplayGameInitializer {
     }
 
     let selected: Unit[] | Unit | null = null
+    function selectTarget(selected: Unit, target: Unit) {
+      if (!(selected instanceof MobileUnit)) {
+        return
+      }
+      game.directMovingToUnit(selected, target)
+    }
+
     map.on('target', e => {
       const moveToPos = (selected: Unit, pos: Point2d) => {
         if (
@@ -117,12 +124,6 @@ export class MultiplayGameInitializer {
           } else {
             selectTarget(selected, units[0])
           }
-        }
-        function selectTarget(selected: Unit, target: Unit) {
-          if (!(selected instanceof MobileUnit)) {
-            return
-          }
-          game.directMovingToUnit(selected, target)
         }
       } else {
         unitManager.select([])
