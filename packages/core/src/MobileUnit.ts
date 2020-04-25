@@ -32,6 +32,9 @@ export class MobileUnitContext {
   ) {}
 }
 
+// The interval to reset route when unit is blocked.
+const WAIT_BLOCKING_INTERVAL = 70
+
 export class MobileUnit extends Unit {
   context: MobileUnitContext = new MobileUnitContext()
   hp = 50
@@ -291,7 +294,7 @@ export class MobileUnit extends Unit {
         this.graphic.rotate((Math.atan(vec.y / vec.x) / Math.PI) * 180 + 90)
         this.vec = vec.times(1 / 50)
         this.count = 50
-        this.count2 = 200
+        this.count2 = WAIT_BLOCKING_INTERVAL
       } else {
         if (this.context.status == MobileUnitStatus.MOVING_TO_UNIT) {
           this.moveToTarget(this.context.target)
