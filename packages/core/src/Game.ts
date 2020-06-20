@@ -9,7 +9,7 @@ import { UnitManager } from './UnitManager'
 import { Player, PlayerType } from './Player'
 import { Unit } from './Unit'
 import { BaseBuildingUnit } from './Building'
-import { MobileUnit } from './MobileUnit'
+import { MobileUnit, MobileUnitStatus } from './MobileUnit'
 import { Point2d } from '@webrts/math2d'
 import { showDebugGrid } from './debug'
 import { v1 } from 'uuid'
@@ -133,6 +133,7 @@ export class Game {
     }
     const recursiveAnim = function() {
       gameLoop()
+      aiLoop(unitManager, player2)
       requestAnimationFrame(recursiveAnim)
     }
     requestAnimationFrame(recursiveAnim)
@@ -148,4 +149,28 @@ function selectTarget(selected: Unit, target) {
   } else {
     selected.moveToTarget(target)
   }
+}
+
+let aiCount = 0
+function aiLoop(unitManager: UnitManager, enemy: Player) {
+  aiCount++
+  if (aiCount < 100) {
+    return
+  }
+  aiCount = 0
+  unitManager.getUnits().forEach(unit => {
+    if (unit.player && unit.player.type === PlayerType.ENEMY) {
+      if (
+        unit instanceof MobileUnit &&
+        unit.context.status === MobileUnitStatus.WAITING
+      ) {
+        const nature = unitManager.getNearNature(unit)
+        unit.moveToTarget(nature[0])
+      } else if (unit instanceof BaseBuildingUnit) {
+        if (enemy.useResource('tree', 20)) {
+          unit.addUnitCreationQueue(v1())
+        }
+      }
+    }
+  })
 }

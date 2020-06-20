@@ -9,7 +9,7 @@ import { NatureUnit } from './NatureUnit'
 import { AStarFinder, Grid } from 'astar-typescript'
 import { UnitManager } from './UnitManager'
 
-enum MobileUnitStatus {
+export enum MobileUnitStatus {
   WAITING = 'WAITING',
   MOVING_TO_POS = 'MOVING_TO_POS',
   MOVING_TO_BUILDING = 'MOVING_TO_BUILDING',
@@ -36,7 +36,7 @@ export class MobileUnitContext {
 const WAIT_BLOCKING_INTERVAL = 70
 
 export class MobileUnit extends Unit {
-  context: MobileUnitContext = new MobileUnitContext()
+  public context: MobileUnitContext = new MobileUnitContext()
   hp = 50
   attack = 5
   range = 3
